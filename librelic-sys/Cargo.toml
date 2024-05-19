@@ -1,0 +1,17 @@
+[package]
+name = "librelic-sys"
+version = "0.1.0"
+edition = "2021"
+links = "relic"
+
+[dependencies]
+
+[build-dependencies]
+pkg-config = { version = "0.3", optional = true }
+bindgen = "0.69"
+cc = { version = "1", features = ["parallel"] }
+
+[features]
+system = []
+default = ["system", "pkg-config"]
+vendored = []

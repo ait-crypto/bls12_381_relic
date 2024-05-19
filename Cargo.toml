@@ -1,0 +1,12 @@
+[package]
+name = "relic-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+librelic-sys = { path = "librelic-sys" }
+pairing = { version = "0.23" }
+rand_core = { version = "0.6", default-features = false }
+subtle = { version = "2.0", default-features = false, features = [
+  "const-generics",
+] }
