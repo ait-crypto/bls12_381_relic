@@ -34,39 +34,10 @@ pub enum Scalar {
 
 impl Scalar {
     const fn from_u64(v: u64) -> Self {
+        let bytes = v.to_le_bytes();
         Scalar::Bytes([
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            0,
-            ((v & 0xff00000000000000) >> 56) as u8,
-            ((v & 0xff000000000000) >> 48) as u8,
-            ((v & 0xff0000000000) >> 40) as u8,
-            ((v & 0xff00000000) >> 32) as u8,
-            ((v & 0xff000000) >> 24) as u8,
-            ((v & 0xff0000) >> 16) as u8,
-            ((v & 0xff00) >> 8) as u8,
-            (v & 0xff) as u8,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, bytes[7],
+            bytes[6], bytes[5], bytes[4], bytes[3], bytes[2], bytes[1], bytes[0],
         ])
     }
 
@@ -873,6 +844,11 @@ mod test {
     use crate::scalar::new_wrapper;
 
     use super::Scalar;
+
+    #[test]
+    fn from_u64() {
+        assert_eq!(Scalar::from_u64(128), Scalar::from_u8(128));
+    }
 
     #[test]
     fn zero() {
