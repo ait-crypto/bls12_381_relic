@@ -662,3 +662,175 @@ bool wrapper_g2_is_valid(const wrapper_g2_t* value) {
 bool wrapper_g2_is_equal(const wrapper_g2_t* lhs, const wrapper_g2_t* rhs) {
   return g2_cmp(lhs->value, rhs->value) == RLC_EQ;
 }
+
+/* --- gt --- */
+
+int wrapper_gt_init(wrapper_gt_t* gt) {
+  RLC_TRY {
+    gt_null(bn->value);
+    gt_new(bn->value);
+  }
+  RLC_CATCH_ANY {
+    gt_free(bn->value);
+    return RLC_ERR;
+  }
+
+  return RLC_OK;
+}
+
+int wrapper_gt_neutral(wrapper_gt_t* gt) {
+  RLC_TRY {
+    gt_set_unity(gt->value);
+  }
+  RLC_CATCH_ANY {
+    return RLC_ERR;
+  }
+
+  return RLC_OK;
+}
+
+int wrapper_gt_generator(wrapper_gt_t* gt) {
+  RLC_TRY {
+    gt_get_gen(gt->value);
+  }
+  RLC_CATCH_ANY {
+    return RLC_ERR;
+  }
+
+  return RLC_OK;
+}
+
+int wrapper_gt_rand(wrapper_gt_t* gt) {
+  RLC_TRY {
+    gt_rand(gt->value);
+  }
+  RLC_CATCH_ANY {
+    return RLC_ERR;
+  }
+
+  return RLC_OK;
+}
+
+int wrapper_gt_add_assign(wrapper_gt_t* dst, const wrapper_gt_t* rhs) {
+  RLC_TRY {
+    gt_mul(dst->value, dst->value, rhs->value);
+  }
+  RLC_CATCH_ANY {
+    return RLC_ERR;
+  }
+
+  return RLC_OK;
+}
+
+int wrapper_gt_add(wrapper_gt_t* dst, const wrapper_gt_t* lhs, const wrapper_gt_t* rhs) {
+  RLC_TRY {
+    gt_mul(dst->value, lhs->value, rhs->value);
+  }
+  RLC_CATCH_ANY {
+    return RLC_ERR;
+  }
+
+  return RLC_OK;
+}
+
+int wrapper_gt_double(wrapper_gt_t* dst, const wrapper_gt_t* src) {
+  RLC_TRY {
+    gt_sqr(dst->value, src->value);
+  }
+  RLC_CATCH_ANY {
+    return RLC_ERR;
+  }
+
+  return RLC_OK;
+}
+
+int wrapper_gt_neg(wrapper_gt_t* gt) {
+  RLC_TRY {
+    gt_inv(gt->value, gt->value);
+  }
+  RLC_CATCH_ANY {
+    return RLC_ERR;
+  }
+
+  return RLC_OK;
+}
+
+int wrapper_gt_mul_assign(wrapper_gt_t* dst, const wrapper_bn_t* rhs) {
+  RLC_TRY {
+    gt_exp(dst->value, dst->value, rhs->value);
+  }
+  RLC_CATCH_ANY {
+    return RLC_ERR;
+  }
+
+  return RLC_OK;
+}
+
+int wrapper_gt_mul(wrapper_gt_t* dst, const wrapper_gt_t* lhs, const wrapper_bn_t* rhs) {
+  RLC_TRY {
+    gt_exp(dst->value, lhs->value, rhs->value);
+  }
+  RLC_CATCH_ANY {
+    return RLC_ERR;
+  }
+
+  return RLC_OK;
+}
+
+int wrapper_gt_size_bin(size_t* size, const wrapper_gt_t* gt) {
+  RLC_TRY {
+    *size = gt_size_bin(((wrapper_gt_t*)gt)->value, 0);
+  }
+  RLC_CATCH_ANY {
+    return RLC_ERR;
+  }
+
+  return RLC_OK;
+}
+
+int wrapper_gt_write_bin(uint8_t* dst, size_t len, const wrapper_gt_t* src) {
+  RLC_TRY {
+    gt_write_bin(dst, len, src->value, 0);
+  }
+  RLC_CATCH_ANY {
+    return RLC_ERR;
+  }
+
+  return RLC_OK;
+}
+
+int wrapper_gt_read_bin(wrapper_gt_t* dst, const uint8_t* src, size_t len) {
+  RLC_TRY {
+    gt_read_bin(dst->value, src, len);
+  }
+  RLC_CATCH_ANY {
+    return RLC_ERR;
+  }
+
+  return RLC_OK;
+}
+
+bool wrapper_gt_is_neutral(const wrapper_gt_t* value) {
+  return gt_is_unity(value->value) == 1;
+}
+
+bool wrapper_gt_is_valid(const wrapper_gt_t* value) {
+  return gt_is_valid(value->value) == 1;
+}
+
+bool wrapper_gt_is_equal(const wrapper_gt_t* lhs, const wrapper_gt_t* rhs) {
+  return gt_cmp(lhs->value, rhs->value) == RLC_EQ;
+}
+
+/* --- pairing --- */
+
+int wrapper_pc_map(wrapper_gt_t* gt, const wrapper_g1_t* g1, const wrapper_g2_t* g2) {
+  RLC_TRY {
+    pc_map(gt->value, g1->value, g2->value);
+  }
+  RLC_CATCH_ANY {
+    return RLC_ERR;
+  }
+
+  return RLC_OK;
+}

@@ -5,7 +5,10 @@ use core::{
     ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
-use generic_array::{typenum::U97, GenericArray};
+use generic_array::{
+    typenum::{Unsigned, U193},
+    GenericArray,
+};
 use librelic_sys::{
     wrapper_g2_add, wrapper_g2_add_assign, wrapper_g2_double, wrapper_g2_generator,
     wrapper_g2_init, wrapper_g2_is_equal, wrapper_g2_is_neutral, wrapper_g2_is_valid,
@@ -22,6 +25,8 @@ use subtle::{Choice, ConditionallySelectable, CtOption};
 use crate::{Affine, Error, Scalar};
 use rand_core::RngCore;
 
+const BYTES_SIZE: usize = U193::USIZE;
+
 fn new_wrapper() -> wrapper_g2_t {
     let mut g2 = MaybeUninit::uninit();
     unsafe {
@@ -32,7 +37,7 @@ fn new_wrapper() -> wrapper_g2_t {
 
 #[derive(Clone, Copy)]
 #[allow(clippy::large_enum_variant)]
-pub struct G2(wrapper_g2_t);
+pub struct G2(pub(crate) wrapper_g2_t);
 
 impl Default for G2 {
     fn default() -> Self {
@@ -56,18 +61,18 @@ impl From<&wrapper_g2_t> for G2 {
     }
 }
 
-impl TryFrom<[u8; 97]> for G2 {
+impl TryFrom<[u8; BYTES_SIZE]> for G2 {
     type Error = Error;
 
-    fn try_from(value: [u8; 97]) -> Result<Self, Self::Error> {
+    fn try_from(value: [u8; BYTES_SIZE]) -> Result<Self, Self::Error> {
         Self::try_from(&value)
     }
 }
 
-impl TryFrom<&[u8; 97]> for G2 {
+impl TryFrom<&[u8; BYTES_SIZE]> for G2 {
     type Error = Error;
 
-    fn try_from(value: &[u8; 97]) -> Result<Self, Self::Error> {
+    fn try_from(value: &[u8; BYTES_SIZE]) -> Result<Self, Self::Error> {
         let mut g2 = new_wrapper();
         let ret = unsafe { wrapper_g2_read_bin(&mut g2, value.as_ptr(), value.len()) };
         if ret == RLC_OK {
@@ -94,9 +99,9 @@ impl From<&G2> for wrapper_g2_t {
     }
 }
 
-impl From<G2> for [u8; 97] {
+impl From<G2> for [u8; BYTES_SIZE] {
     fn from(value: G2) -> Self {
-        let mut ret = [0u8; 97];
+        let mut ret = [0u8; BYTES_SIZE];
         unsafe {
             wrapper_g2_write_bin(ret.as_mut_ptr(), ret.len(), &value.0);
         }
@@ -104,9 +109,9 @@ impl From<G2> for [u8; 97] {
     }
 }
 
-impl From<&G2> for [u8; 97] {
+impl From<&G2> for [u8; BYTES_SIZE] {
     fn from(value: &G2) -> Self {
-        let mut ret = [0u8; 97];
+        let mut ret = [0u8; BYTES_SIZE];
         unsafe {
             wrapper_g2_write_bin(ret.as_mut_ptr(), ret.len(), &value.0);
         }
@@ -394,13 +399,13 @@ impl Eq for G2 {}
 
 impl fmt::Debug for G2 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let bytes: [u8; 97] = self.into();
+        let bytes: [u8; BYTES_SIZE] = self.into();
         f.debug_tuple("Relic").field(&bytes).finish()
     }
 }
 
 impl GroupEncoding for G2 {
-    type Repr = GenericArray<u8, U97>;
+    type Repr = GenericArray<u8, U193>;
 
     fn from_bytes(bytes: &Self::Repr) -> CtOption<Self> {
         let mut wrapper = new_wrapper();
@@ -438,7 +443,7 @@ impl Group for G2 {
         }
         Self(g2)
         /*
-                let mut bytes = [0u8; 97];
+                let mut bytes = [0u8; BYTES_SIZE];
                 // unpacked representation
                 bytes[0] = 4;
                 loop {
@@ -557,6 +562,21 @@ impl ConditionallySelectable for G2 {
         } else {
             *a
         }
+    }
+}
+
+impl From<Affine<G2>> for G2 {
+    fn from(value: Affine<G2>) -> Self {
+        value.0
+    }
+}
+
+impl From<G2> for Affine<G2> {
+    fn from(mut value: G2) -> Self {
+        unsafe {
+            wrapper_g2_norm(&mut value.0, &value.0);
+        }
+        Self(value)
     }
 }
 

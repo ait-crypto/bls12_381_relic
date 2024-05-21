@@ -82,4 +82,27 @@ bool wrapper_g2_is_neutral(const wrapper_g2_t* value);
 bool wrapper_g2_is_valid(const wrapper_g2_t* value);
 bool wrapper_g2_is_equal(const wrapper_g2_t* lhs, const wrapper_g2_t* rhs);
 
+typedef struct {
+  gt_t value;
+} wrapper_gt_t;
+
+int wrapper_gt_init(wrapper_gt_t* gt);
+int wrapper_gt_neutral(wrapper_gt_t* gt);
+int wrapper_gt_generator(wrapper_gt_t* gt);
+int wrapper_gt_rand(wrapper_gt_t* gt);
+int wrapper_gt_add_assign(wrapper_gt_t* dst, const wrapper_gt_t* rhs);
+int wrapper_gt_add(wrapper_gt_t* dst, const wrapper_gt_t* lhs, const wrapper_gt_t* rhs);
+int wrapper_gt_double(wrapper_gt_t* dst, const wrapper_gt_t* src);
+int wrapper_gt_neg(wrapper_gt_t* gt);
+int wrapper_gt_mul_assign(wrapper_gt_t* dst, const wrapper_bn_t* rhs);
+int wrapper_gt_mul(wrapper_gt_t* dst, const wrapper_gt_t* lhs, const wrapper_bn_t* rhs);
+int wrapper_gt_size_bin(size_t* size, const wrapper_gt_t* gt);
+int wrapper_gt_write_bin(uint8_t* dst, size_t len, const wrapper_gt_t* src);
+int wrapper_gt_read_bin(wrapper_gt_t* dst, const uint8_t* src, size_t len);
+bool wrapper_gt_is_neutral(const wrapper_gt_t* value);
+bool wrapper_gt_is_valid(const wrapper_gt_t* value);
+bool wrapper_gt_is_equal(const wrapper_gt_t* lhs, const wrapper_gt_t* rhs);
+
+int wrapper_pc_map(wrapper_gt_t* gt, const wrapper_g1_t* g1, const wrapper_g2_t* g2);
+
 #endif
