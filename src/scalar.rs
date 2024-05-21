@@ -8,8 +8,8 @@ use std::{
 use librelic_sys::{
     wrapper_bn_add, wrapper_bn_add_assign, wrapper_bn_double, wrapper_bn_init, wrapper_bn_inv,
     wrapper_bn_is_odd, wrapper_bn_is_zero, wrapper_bn_mul, wrapper_bn_mul_assign, wrapper_bn_neg,
-    wrapper_bn_one, wrapper_bn_read_bin, wrapper_bn_size_bin, wrapper_bn_sub_assign, wrapper_bn_t,
-    wrapper_bn_write_bin, wrapper_bn_zero, RLC_OK,
+    wrapper_bn_one, wrapper_bn_read_bin, wrapper_bn_sub_assign, wrapper_bn_t, wrapper_bn_write_bin,
+    wrapper_bn_zero, RLC_OK,
 };
 use pairing::group::ff::{Field, PrimeField};
 use subtle::{Choice, ConditionallySelectable, ConstantTimeEq, CtOption};
@@ -53,30 +53,7 @@ impl Default for Scalar {
     fn default() -> Self {
         Scalar::Bytes([0u8; 32])
     }
-    /* fn default() -> Self {
-        Instance::new();
-
-        let mut bn = MaybeUninit::uninit();
-        let mut bn = Self(unsafe {
-            wrapper_bn_init(bn.as_mut_ptr());
-            bn.assume_init()
-        });
-        unsafe {
-            wrapper_bn_zero(&mut bn.0);
-        }
-        bn
-    } */
 }
-
-/*
-impl Drop for Scalar {
-    fn drop(&mut self) {
-        unsafe {
-            wrapper_bn_free(&mut self.0);
-        }
-    }
-}
- */
 
 impl From<wrapper_bn_t> for Scalar {
     fn from(value: wrapper_bn_t) -> Self {
@@ -138,9 +115,6 @@ impl From<Scalar> for [u8; 32] {
             Scalar::Relic(ref value) => {
                 let mut ret = [0u8; 32];
                 unsafe {
-                    let mut size = 0;
-                    wrapper_bn_size_bin(&mut size, value);
-                    assert!(size <= 32);
                     wrapper_bn_write_bin(ret.as_mut_ptr(), ret.len(), value);
                 }
                 ret
