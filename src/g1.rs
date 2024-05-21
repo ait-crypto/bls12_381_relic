@@ -1,5 +1,5 @@
-use core::fmt;
-use std::{
+use core::{
+    fmt,
     iter::Sum,
     mem::MaybeUninit,
     ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign},

@@ -1,4 +1,4 @@
-use std::{
+use core::{
     fmt,
     iter::{Product, Sum},
     mem::MaybeUninit,
