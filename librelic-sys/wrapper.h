@@ -1,3 +1,6 @@
+#ifndef RELIC_WRAPPER_H
+#define RELIC_WRAPPER_H
+
 #include <relic/relic.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -54,3 +57,29 @@ int wrapper_g1_read_bin(wrapper_g1_t* dst, const uint8_t* src, size_t len);
 bool wrapper_g1_is_neutral(const wrapper_g1_t* value);
 bool wrapper_g1_is_valid(const wrapper_g1_t* value);
 bool wrapper_g1_is_equal(const wrapper_g1_t* lhs, const wrapper_g1_t* rhs);
+
+typedef struct {
+  g2_t value;
+} wrapper_g2_t;
+
+int wrapper_g2_init(wrapper_g2_t* g2);
+int wrapper_g2_neutral(wrapper_g2_t* g2);
+int wrapper_g2_generator(wrapper_g2_t* g2);
+int wrapper_g2_rand(wrapper_g2_t* g2);
+int wrapper_g2_add_assign(wrapper_g2_t* dst, const wrapper_g2_t* rhs);
+int wrapper_g2_add(wrapper_g2_t* dst, const wrapper_g2_t* lhs, const wrapper_g2_t* rhs);
+int wrapper_g2_double(wrapper_g2_t* dst, const wrapper_g2_t* src);
+int wrapper_g2_neg(wrapper_g2_t* g2);
+int wrapper_g2_sub_assign(wrapper_g2_t* dst, const wrapper_g2_t* rhs);
+int wrapper_g2_sub(wrapper_g2_t* dst, const wrapper_g2_t* lhs, const wrapper_g2_t* rhs);
+int wrapper_g2_mul_assign(wrapper_g2_t* dst, const wrapper_bn_t* rhs);
+int wrapper_g2_mul(wrapper_g2_t* dst, const wrapper_g2_t* lhs, const wrapper_bn_t* rhs);
+int wrapper_g2_norm(wrapper_g2_t* dst, const wrapper_g2_t* src);
+int wrapper_g2_size_bin(size_t* size, const wrapper_g2_t* g2);
+int wrapper_g2_write_bin(uint8_t* dst, size_t len, const wrapper_g2_t* src);
+int wrapper_g2_read_bin(wrapper_g2_t* dst, const uint8_t* src, size_t len);
+bool wrapper_g2_is_neutral(const wrapper_g2_t* value);
+bool wrapper_g2_is_valid(const wrapper_g2_t* value);
+bool wrapper_g2_is_equal(const wrapper_g2_t* lhs, const wrapper_g2_t* rhs);
+
+#endif
