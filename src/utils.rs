@@ -4,7 +4,7 @@ use pairing::group::{
     prime::{PrimeCurve, PrimeCurveAffine},
     GroupEncoding, UncompressedEncoding,
 };
-use subtle::{Choice, ConditionallySelectable, CtOption};
+use subtle::{Choice, CtOption};
 
 use crate::Scalar;
 

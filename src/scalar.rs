@@ -696,7 +696,6 @@ impl PartialEq for Scalar {
     fn eq(&self, other: &Self) -> bool {
         let lhs: [u8; 32] = self.into();
         let rhs: [u8; 32] = other.into();
-        println!("lhs: {:?}, rhs: {:?}", lhs, rhs);
         lhs.eq(&rhs)
     }
 }

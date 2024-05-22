@@ -11,10 +11,10 @@ use generic_array::{
 };
 use librelic_sys::{
     wrapper_g2_add, wrapper_g2_add_assign, wrapper_g2_double, wrapper_g2_generator,
-    wrapper_g2_init, wrapper_g2_is_equal, wrapper_g2_is_neutral, wrapper_g2_is_valid,
-    wrapper_g2_mul, wrapper_g2_mul_assign, wrapper_g2_neg, wrapper_g2_neutral, wrapper_g2_norm,
-    wrapper_g2_rand, wrapper_g2_read_bin, wrapper_g2_sub, wrapper_g2_sub_assign, wrapper_g2_t,
-    wrapper_g2_write_bin, RLC_OK,
+    wrapper_g2_hash_to_curve, wrapper_g2_init, wrapper_g2_is_equal, wrapper_g2_is_neutral,
+    wrapper_g2_is_valid, wrapper_g2_mul, wrapper_g2_mul_assign, wrapper_g2_neg, wrapper_g2_neutral,
+    wrapper_g2_norm, wrapper_g2_rand, wrapper_g2_read_bin, wrapper_g2_sub, wrapper_g2_sub_assign,
+    wrapper_g2_t, wrapper_g2_write_bin, RLC_OK,
 };
 use pairing::group::{
     prime::{PrimeCurve, PrimeGroup},
@@ -46,6 +46,17 @@ impl Default for G2Projective {
             wrapper_g2_neutral(&mut value);
         }
         Self(value)
+    }
+}
+
+impl G2Projective {
+    pub fn hash_to_curve(msg: impl AsRef<[u8]>, dst: &[u8]) -> Self {
+        let mut g2 = new_wrapper();
+        let msg = msg.as_ref();
+        unsafe {
+            wrapper_g2_hash_to_curve(&mut g2, msg.as_ptr(), msg.len(), dst.as_ptr(), dst.len());
+        }
+        g2.into()
     }
 }
 

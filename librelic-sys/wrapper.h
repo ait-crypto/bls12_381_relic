@@ -41,6 +41,7 @@ typedef struct {
 int wrapper_g1_init(wrapper_g1_t* g1);
 int wrapper_g1_neutral(wrapper_g1_t* g1);
 int wrapper_g1_generator(wrapper_g1_t* g1);
+int wrapper_g1_hash_to_curve(wrapper_g1_t* g1, const uint8_t* msg, size_t len, const uint8_t* dst, size_t dst_len);
 int wrapper_g1_rand(wrapper_g1_t* g1);
 int wrapper_g1_add_assign(wrapper_g1_t* dst, const wrapper_g1_t* rhs);
 int wrapper_g1_add(wrapper_g1_t* dst, const wrapper_g1_t* lhs, const wrapper_g1_t* rhs);
@@ -65,6 +66,7 @@ typedef struct {
 int wrapper_g2_init(wrapper_g2_t* g2);
 int wrapper_g2_neutral(wrapper_g2_t* g2);
 int wrapper_g2_generator(wrapper_g2_t* g2);
+int wrapper_g2_hash_to_curve(wrapper_g2_t* g2, const uint8_t* msg, size_t len, const uint8_t* dst, size_t dst_len);
 int wrapper_g2_rand(wrapper_g2_t* g2);
 int wrapper_g2_add_assign(wrapper_g2_t* dst, const wrapper_g2_t* rhs);
 int wrapper_g2_add(wrapper_g2_t* dst, const wrapper_g2_t* lhs, const wrapper_g2_t* rhs);

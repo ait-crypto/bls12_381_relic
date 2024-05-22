@@ -11,19 +11,22 @@ use generic_array::{
 };
 use librelic_sys::{
     wrapper_g1_add, wrapper_g1_add_assign, wrapper_g1_double, wrapper_g1_generator,
-    wrapper_g1_init, wrapper_g1_is_equal, wrapper_g1_is_neutral, wrapper_g1_is_valid,
-    wrapper_g1_mul, wrapper_g1_mul_assign, wrapper_g1_neg, wrapper_g1_neutral, wrapper_g1_norm,
-    wrapper_g1_rand, wrapper_g1_read_bin, wrapper_g1_sub, wrapper_g1_sub_assign, wrapper_g1_t,
-    wrapper_g1_write_bin, RLC_OK,
+    wrapper_g1_hash_to_curve, wrapper_g1_init, wrapper_g1_is_equal, wrapper_g1_is_neutral,
+    wrapper_g1_is_valid, wrapper_g1_mul, wrapper_g1_mul_assign, wrapper_g1_neg, wrapper_g1_neutral,
+    wrapper_g1_norm, wrapper_g1_rand, wrapper_g1_read_bin, wrapper_g1_sub, wrapper_g1_sub_assign,
+    wrapper_g1_t, wrapper_g1_write_bin, RLC_OK,
 };
 use pairing::group::{
     prime::{PrimeCurve, PrimeGroup},
     Curve, Group, GroupEncoding,
 };
+use rand_core::RngCore;
 use subtle::{Choice, CtOption};
 
 use crate::{Affine, Error, Scalar};
-use rand_core::RngCore;
+
+#[cfg(feature = "hash-to-curve")]
+use crate::hash_to_curve::HashToCurve;
 
 const BYTES_SIZE: usize = U97::USIZE;
 
@@ -38,6 +41,17 @@ fn new_wrapper() -> wrapper_g1_t {
 #[derive(Clone, Copy)]
 #[allow(clippy::large_enum_variant)]
 pub struct G1Projective(pub(crate) wrapper_g1_t);
+
+impl G1Projective {
+    pub fn hash_to_curve(msg: impl AsRef<[u8]>, dst: &[u8]) -> Self {
+        let mut g1 = new_wrapper();
+        let msg = msg.as_ref();
+        unsafe {
+            wrapper_g1_hash_to_curve(&mut g1, msg.as_ptr(), msg.len(), dst.as_ptr(), dst.len());
+        }
+        g1.into()
+    }
+}
 
 impl Default for G1Projective {
     fn default() -> Self {

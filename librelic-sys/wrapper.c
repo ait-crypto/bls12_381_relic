@@ -322,6 +322,17 @@ int wrapper_g1_generator(wrapper_g1_t* g1) {
   return RLC_OK;
 }
 
+int wrapper_g1_hash_to_curve(wrapper_g1_t* g1, const uint8_t* msg, size_t len, const uint8_t* dst, size_t dst_len) {
+  RLC_TRY {
+    ep_map_dst(g1->value, msg, len, dst, dst_len);
+  }
+  RLC_CATCH_ANY {
+    return RLC_ERR;
+  }
+
+  return RLC_OK;
+}
+
 int wrapper_g1_rand(wrapper_g1_t* g1) {
   RLC_TRY {
     g1_rand(g1->value);
@@ -506,6 +517,17 @@ int wrapper_g2_neutral(wrapper_g2_t* g2) {
 int wrapper_g2_generator(wrapper_g2_t* g2) {
   RLC_TRY {
     g2_get_gen(g2->value);
+  }
+  RLC_CATCH_ANY {
+    return RLC_ERR;
+  }
+
+  return RLC_OK;
+}
+
+int wrapper_g2_hash_to_curve(wrapper_g2_t* g2, const uint8_t* msg, size_t len, const uint8_t* dst, size_t dst_len) {
+  RLC_TRY {
+    ep2_map_dst(g2->value, msg, len, dst, dst_len);
   }
   RLC_CATCH_ANY {
     return RLC_ERR;
