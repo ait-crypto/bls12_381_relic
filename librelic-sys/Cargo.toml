@@ -10,8 +10,9 @@ links = "relic"
 pkg-config = { version = "0.3", optional = true }
 bindgen = "0.69"
 cc = { version = "1", features = ["parallel"] }
+cmake = { version = "0.1", optional = true }
 
 [features]
-system = []
-default = ["system", "pkg-config"]
-vendored = []
+system = ["dep:pkg-config"]
+default = ["system"]
+vendored = ["dep:cmake"]

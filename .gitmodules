@@ -1,0 +1,3 @@
+[submodule "librelic-sys/relic"]
+	path = librelic-sys/relic
+	url = https://github.com/relic-toolkit/relic.git

@@ -1,28 +1,53 @@
 use std::{env, path::PathBuf};
 
 #[cfg(feature = "vendored")]
-fn build() {
-    panic!("vendored not yet implemented")
+fn build() -> PathBuf {
+    let dst = cmake::Config::new("relic")
+        .define("WSIZE", "64")
+        .define("RAND", "UDEV")
+        .define("SHLIB", "OFF")
+        .define("STBIN", "OFF")
+        .define("STLIB", "ON")
+        .define("TIMER", "")
+        .define("CHECK", "OFF")
+        .define("BENCH", "0")
+        .define("TESTS", "0")
+        .define("VERBS", "OFF")
+        .define("ARITH", "x64-asm-382")
+        .define("FP_PRIME", "381")
+        .define("FP_METHD", "INTEG;INTEG;INTEG;MONTY;LOWER;LOWER;SLIDE")
+        .define("FP_PMERS", "off")
+        .define("FP_QMRES", "on")
+        .define("FPX_METHD", "INTEG;INTEG;LAZYR")
+        .define("EP_PLAIN", "off")
+        .define("EP_SUPER", "off")
+        .define("PP_METHD", "LAZYR;OATEP")
+        .build();
+
+    println!("cargo:rustc-link-search=native={}/lib", dst.display());
+    println!("cargo:rustc-link-lib=static=relic_s");
+
+    dst
 }
 
-fn find_lib() {
+fn find_lib() -> Option<PathBuf> {
     #[cfg(feature = "system")]
     {
         // Try to find shared library via pkg-config
         if pkg_config::Config::new().probe("relic").is_ok() {
-            return;
+            return None;
         }
     }
 
-    #[cfg(feature = "vendored")]
-    // Download and build static library
-    build();
     #[cfg(not(feature = "vendored"))]
     panic!("Unable to find library with pkg-config and vendored is not enabled!");
+    #[cfg(feature = "vendored")]
+    // Download and build static library
+    Some(build())
 }
 
 fn main() {
-    find_lib();
+    let relic_path = find_lib();
 
     // Invalidate the built crate whenever the wrapper and the build script changes.
     println!("cargo:rerun-if-changed=wrapper.h");
@@ -33,10 +58,14 @@ fn main() {
     build.static_flag(true);
     build.flag_if_supported("-std=gnu11");
     build.flag_if_supported("-fstack-protector-strong");
+    if let Some(ref relic_path) = relic_path {
+        build.include(relic_path.join("include"));
+        build.include(format!("{}/relic/include", env!("CARGO_MANIFEST_DIR")));
+    }
     build.define("_FORTIFY_SOURCE", Some("2"));
     build.files(["wrapper.c"].iter()).compile("relic-wrapper");
 
-    let bindings = bindgen::Builder::default()
+    let binding_builder = bindgen::Builder::default()
         .header("wrapper.h")
         // Invalidate the built crate whenever any of the included header files changed.
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
@@ -53,7 +82,15 @@ fn main() {
         .allowlist_item("RLC_.*")
         .allowlist_item("wrapper_.*")
         .impl_debug(false)
-        .default_macro_constant_type(bindgen::MacroTypeVariation::Signed)
+        .default_macro_constant_type(bindgen::MacroTypeVariation::Signed);
+    let binding_builder = if let Some(ref relic_path) = relic_path {
+        binding_builder
+            .clang_arg(format!("-I{}", relic_path.join("include").display()))
+            .clang_arg(format!("-I{}/relic/include", env!("CARGO_MANIFEST_DIR")))
+    } else {
+        binding_builder
+    };
+    let bindings = binding_builder
         // Finish the builder and generate the bindings.
         .generate()
         .expect("Unable to generate bindings");
