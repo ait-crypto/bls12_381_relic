@@ -5,14 +5,17 @@ pub mod gt;
 pub mod scalar;
 mod utils;
 
-// re-exports
-pub use pairing;
-pub use pairing::group;
-pub use pairing::group::ff;
-pub use subtle;
+/// re-exports
+pub mod exports {
+    pub use pairing;
+    pub use pairing::group;
+    pub use pairing::group::ff;
+    pub use subtle;
+}
 
-pub use g1::{G1Affine, G1};
-pub use g2::{G2Affine, G2};
+pub use engine::{pairing, BLS12Engine};
+pub use g1::{G1Affine, G1Projective};
+pub use g2::{G2Affine, G2Projective};
 pub use gt::Gt;
 pub use scalar::Scalar;
 pub(crate) use utils::Affine;

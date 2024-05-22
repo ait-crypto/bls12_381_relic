@@ -47,6 +47,28 @@ impl Scalar {
             0, 0, v,
         ])
     }
+
+    pub const fn one() -> Self {
+        Self::ONE
+    }
+
+    pub const fn zero() -> Self {
+        Self::ZERO
+    }
+
+    pub fn to_bytes(&self) -> [u8; 32] {
+        From::from(self)
+    }
+
+    pub fn from_bytes(bytes: &[u8; 32]) -> CtOption<Self> {
+        CtOption::new(Self::from(bytes), 1.into())
+    }
+
+    pub fn from_bytes_wide(bytes: &[u8; 64]) -> Self {
+        let mut bn = new_wrapper();
+        unsafe { wrapper_bn_read_bin(&mut bn, bytes.as_ptr(), bytes.len(), true) };
+        Self::Relic(bn)
+    }
 }
 
 impl Default for Scalar {
@@ -86,7 +108,7 @@ impl From<Scalar> for wrapper_bn_t {
             Scalar::Bytes(ref bytes) => {
                 let mut bn = new_wrapper();
                 unsafe {
-                    wrapper_bn_read_bin(&mut bn, bytes.as_ptr(), bytes.len());
+                    wrapper_bn_read_bin(&mut bn, bytes.as_ptr(), bytes.len(), false);
                 }
                 bn
             }
@@ -101,7 +123,7 @@ impl From<&Scalar> for wrapper_bn_t {
             Scalar::Bytes(ref bytes) => {
                 let mut bn = new_wrapper();
                 unsafe {
-                    wrapper_bn_read_bin(&mut bn, bytes.as_ptr(), bytes.len());
+                    wrapper_bn_read_bin(&mut bn, bytes.as_ptr(), bytes.len(), false);
                 }
                 bn
             }
@@ -150,7 +172,7 @@ impl TryFrom<&[u8]> for Scalar {
 
     fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
         let mut bn = new_wrapper();
-        let ret = unsafe { wrapper_bn_read_bin(&mut bn, value.as_ptr(), value.len()) };
+        let ret = unsafe { wrapper_bn_read_bin(&mut bn, value.as_ptr(), value.len(), false) };
         if ret == RLC_OK {
             Ok(Scalar::Relic(bn))
         } else {
@@ -704,7 +726,7 @@ impl Field for Scalar {
         rng.fill_bytes(&mut bytes);
         let mut bn = new_wrapper();
         unsafe {
-            wrapper_bn_read_bin(&mut bn, bytes.as_ptr(), bytes.len());
+            wrapper_bn_read_bin(&mut bn, bytes.as_ptr(), bytes.len(), true);
         }
         Scalar::from(bn)
     }

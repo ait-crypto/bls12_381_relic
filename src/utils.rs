@@ -127,28 +127,10 @@ where
     }
 }
 
-impl<G> GroupEncoding for Affine<G>
-where
-    G: GroupEncoding + Default + ConditionallySelectable,
-{
-    type Repr = G::Repr;
-
-    fn from_bytes(bytes: &Self::Repr) -> CtOption<Self> {
-        G::from_bytes(bytes).map(|g| Self(g))
-    }
-
-    fn from_bytes_unchecked(bytes: &Self::Repr) -> CtOption<Self> {
-        G::from_bytes_unchecked(bytes).map(|g| Self(g))
-    }
-
-    fn to_bytes(&self) -> Self::Repr {
-        self.0.to_bytes()
-    }
-}
-
 impl<G> PrimeCurveAffine for Affine<G>
 where
-    G: PrimeCurve<Affine = Self, Scalar = Scalar> + Default + ConditionallySelectable,
+    G: PrimeCurve<Affine = Self, Scalar = Scalar>,
+    Self: GroupEncoding,
 {
     type Scalar = Scalar;
 

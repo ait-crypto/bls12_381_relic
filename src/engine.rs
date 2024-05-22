@@ -1,19 +1,19 @@
 use librelic_sys::wrapper_pc_map;
 use pairing::{Engine, PairingCurveAffine};
 
-use crate::{gt::new_wrapper, G1Affine, G2Affine, Gt, Scalar, G1, G2};
+use crate::{gt::new_wrapper, G1Affine, G1Projective, G2Affine, G2Projective, Gt, Scalar};
 
 #[derive(Debug, Clone)]
-struct BLS12Engine;
+pub struct BLS12Engine;
 
 impl Engine for BLS12Engine {
     type Fr = Scalar;
 
-    type G1 = G1;
+    type G1 = G1Projective;
 
     type G1Affine = G1Affine;
 
-    type G2 = G2;
+    type G2 = G2Projective;
 
     type G2Affine = G2Affine;
 
@@ -26,6 +26,10 @@ impl Engine for BLS12Engine {
         }
         gt.into()
     }
+}
+
+pub fn pairing(p: &G1Affine, q: &G2Affine) -> Gt {
+    BLS12Engine::pairing(p, q)
 }
 
 impl PairingCurveAffine for G1Affine {
@@ -57,8 +61,8 @@ mod test {
     #[test]
     fn pair() {
         let mut rng = rand::thread_rng();
-        let g1: G1Affine = G1::random(&mut rng).into();
-        let g2: G2Affine = G2::random(&mut rng).into();
+        let g1: G1Affine = G1Projective::random(&mut rng).into();
+        let g2: G2Affine = G2Projective::random(&mut rng).into();
 
         assert_eq!(g1.pairing_with(&g2), g2.pairing_with(&g1));
     }

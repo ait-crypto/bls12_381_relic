@@ -2,6 +2,10 @@
 
 #include <stdbool.h>
 
+#if ALLOC != AUTO
+#error "Only relic with automatic allocation is supported."
+#endif
+
 static bool core_init_run = false;
 static bn_t order;
 
@@ -43,7 +47,6 @@ int wrapper_bn_init(wrapper_bn_t* bn) {
 #if 0
 int wrapper_bn_free(wrapper_bn_t* bn) {
   RLC_TRY {
-    (void*)bn;
     bn_free(bn->value);
   }
   RLC_CATCH_ANY {
@@ -248,9 +251,12 @@ int wrapper_bn_write_bin(uint8_t* dst, size_t len, const wrapper_bn_t* src) {
   return RLC_OK;
 }
 
-int wrapper_bn_read_bin(wrapper_bn_t* dst, const uint8_t* src, size_t len) {
+int wrapper_bn_read_bin(wrapper_bn_t* dst, const uint8_t* src, size_t len, bool reduce) {
   RLC_TRY {
     bn_read_bin(dst->value, src, len);
+    if (reduce) {
+      bn_mod(dst->value, dst->value, order);
+    }
   }
   RLC_CATCH_ANY {
     return RLC_ERR;
