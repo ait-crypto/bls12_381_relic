@@ -20,7 +20,15 @@ pub use gt::Gt;
 pub use scalar::Scalar;
 pub(crate) use utils::Affine;
 
+/// Error type
+///
+/// This enum covers all errors that are produced by the crate.
+#[derive(thiserror::Error, Debug)]
 pub enum Error {
+    /// Relic failure
+    #[error("Relic failure: {0}")]
     RelicError(i32),
+    /// Invalid byte representation of group elements or scalars
+    #[error("Invalid representation as bytes.")]
     InvalidBytesRepresentation,
 }
