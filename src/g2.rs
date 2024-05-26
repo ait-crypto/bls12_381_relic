@@ -588,6 +588,18 @@ impl From<&G2Projective> for Affine<G2Projective> {
     }
 }
 
+impl From<Affine<G2Projective>> for wrapper_g2_t {
+    fn from(value: Affine<G2Projective>) -> Self {
+        value.0.into()
+    }
+}
+
+impl From<&Affine<G2Projective>> for wrapper_g2_t {
+    fn from(value: &Affine<G2Projective>) -> Self {
+        value.0.into()
+    }
+}
+
 impl GroupEncoding for Affine<G2Projective> {
     type Repr = <G2Projective as GroupEncoding>::Repr;
 

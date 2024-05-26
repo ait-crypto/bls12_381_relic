@@ -25,9 +25,6 @@ use subtle::{Choice, CtOption};
 
 use crate::{Affine, Error, Scalar};
 
-#[cfg(feature = "hash-to-curve")]
-use crate::hash_to_curve::HashToCurve;
-
 const BYTES_SIZE: usize = U97::USIZE;
 
 fn new_wrapper() -> wrapper_g1_t {
@@ -43,6 +40,7 @@ fn new_wrapper() -> wrapper_g1_t {
 pub struct G1Projective(pub(crate) wrapper_g1_t);
 
 impl G1Projective {
+    // FIXME: make compatible with bls12-381 crate
     pub fn hash_to_curve(msg: impl AsRef<[u8]>, dst: &[u8]) -> Self {
         let mut g1 = new_wrapper();
         let msg = msg.as_ref();
@@ -456,14 +454,6 @@ impl Group for G1Projective {
             wrapper_g1_rand(&mut g1);
         }
         Self(g1)
-        /*
-                let mut bytes = [0u8; BYTES_SIZE];
-                // unpacked representation
-                bytes[0] = 4;
-                loop {
-                    rng.fill_bytes(&mut bytes[1..]);
-                }
-        */
     }
 
     fn identity() -> Self {
@@ -596,6 +586,18 @@ impl From<&G1Projective> for Affine<G1Projective> {
             wrapper_g1_norm(&mut g1, &value.0);
         }
         Self(G1Projective(g1))
+    }
+}
+
+impl From<Affine<G1Projective>> for wrapper_g1_t {
+    fn from(value: Affine<G1Projective>) -> Self {
+        value.0.into()
+    }
+}
+
+impl From<&Affine<G1Projective>> for wrapper_g1_t {
+    fn from(value: &Affine<G1Projective>) -> Self {
+        value.0.into()
     }
 }
 
