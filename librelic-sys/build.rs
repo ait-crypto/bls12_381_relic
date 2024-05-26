@@ -58,6 +58,7 @@ fn main() {
     build.static_flag(true);
     build.flag_if_supported("-std=gnu11");
     build.flag_if_supported("-fstack-protector-strong");
+    build.flag_if_supported("-Werror=incompatible-pointer-types");
     if let Some(ref relic_path) = relic_path {
         build.include(relic_path.join("include"));
         build.include(format!("{}/relic/include", env!("CARGO_MANIFEST_DIR")));
