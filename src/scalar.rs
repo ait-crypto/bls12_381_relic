@@ -25,6 +25,9 @@ fn new_wrapper() -> wrapper_bn_t {
     }
 }
 
+/// Scalar in the prime field induced by the order of the elliptic curve groups
+///
+/// The interface is intended to be compatible with `bls12_381::Scalar`.
 #[derive(Clone, Copy)]
 #[allow(clippy::large_enum_variant)]
 pub enum Scalar {
@@ -48,22 +51,27 @@ impl Scalar {
         ])
     }
 
+    /// Obtain a representation of 1
     pub const fn one() -> Self {
         Self::ONE
     }
 
+    /// Obtain a representation of 0
     pub const fn zero() -> Self {
         Self::ZERO
     }
 
+    /// Encode scalar as bytes
     pub fn to_bytes(&self) -> [u8; 32] {
         From::from(self)
     }
 
+    /// Decode scalar from bytes
     pub fn from_bytes(bytes: &[u8; 32]) -> CtOption<Self> {
         CtOption::new(Self::from(bytes), 1.into())
     }
 
+    /// Decode scalar from bytes and reduce modulo the order
     pub fn from_bytes_wide(bytes: &[u8; 64]) -> Self {
         let mut bn = new_wrapper();
         unsafe { wrapper_bn_read_bin(&mut bn, bytes.as_ptr(), bytes.len(), true) };
@@ -73,7 +81,7 @@ impl Scalar {
 
 impl Default for Scalar {
     fn default() -> Self {
-        Scalar::Bytes([0u8; 32])
+        Scalar::ZERO
     }
 }
 
@@ -762,7 +770,6 @@ impl Field for Scalar {
     fn invert(&self) -> CtOption<Self> {
         let mut value = self.into();
         let ret = unsafe { wrapper_bn_inv(&mut value) };
-        // FIXME
         CtOption::new(Scalar::Relic(value), ((ret == RLC_OK) as u8).into())
     }
 
