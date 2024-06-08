@@ -541,6 +541,15 @@ void wrapper_g2_mul(wrapper_g2_t* dst, const wrapper_g2_t* lhs, const wrapper_bn
   }
 }
 
+void wrapper_g2_simmul(wrapper_g2_t* dst, const wrapper_g2_t* g2s, const wrapper_bn_t* scalars, size_t len) {
+  RLC_TRY {
+    g2_mul_sim_lot(*dst, g2s, scalars, len);
+  }
+  RLC_CATCH_ANY {
+    assert(false);
+  }
+}
+
 void wrapper_g2_norm(wrapper_g2_t* dst, const wrapper_g2_t* src) {
   RLC_TRY {
     g2_norm(*dst, *src);

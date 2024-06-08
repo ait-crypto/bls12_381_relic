@@ -68,6 +68,7 @@ void wrapper_g2_sub_assign(wrapper_g2_t* dst, const wrapper_g2_t* rhs);
 void wrapper_g2_sub(wrapper_g2_t* dst, const wrapper_g2_t* lhs, const wrapper_g2_t* rhs);
 void wrapper_g2_mul_assign(wrapper_g2_t* dst, const wrapper_bn_t* rhs);
 void wrapper_g2_mul(wrapper_g2_t* dst, const wrapper_g2_t* lhs, const wrapper_bn_t* rhs);
+void wrapper_g2_simmul(wrapper_g2_t* dst, const wrapper_g2_t* g2s, const wrapper_bn_t* scalars, size_t len);
 void wrapper_g2_norm(wrapper_g2_t* dst, const wrapper_g2_t* src);
 void wrapper_g2_size_bin(size_t* size, const wrapper_g2_t* g2);
 void wrapper_g2_write_bin(uint8_t* dst, size_t len, const wrapper_g2_t* src);

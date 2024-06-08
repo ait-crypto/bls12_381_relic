@@ -10,11 +10,11 @@ use generic_array::{
     GenericArray,
 };
 use librelic_sys::{
-    wrapper_g2_add, wrapper_g2_add_assign, wrapper_g2_double, wrapper_g2_generator,
+    wrapper_bn_t, wrapper_g2_add, wrapper_g2_add_assign, wrapper_g2_double, wrapper_g2_generator,
     wrapper_g2_hash_to_curve, wrapper_g2_init, wrapper_g2_is_equal, wrapper_g2_is_neutral,
     wrapper_g2_is_valid, wrapper_g2_mul, wrapper_g2_mul_assign, wrapper_g2_neg, wrapper_g2_neutral,
-    wrapper_g2_norm, wrapper_g2_rand, wrapper_g2_read_bin, wrapper_g2_sub, wrapper_g2_sub_assign,
-    wrapper_g2_t, wrapper_g2_write_bin, RLC_OK,
+    wrapper_g2_norm, wrapper_g2_rand, wrapper_g2_read_bin, wrapper_g2_simmul, wrapper_g2_sub,
+    wrapper_g2_sub_assign, wrapper_g2_t, wrapper_g2_write_bin, RLC_OK,
 };
 use pairing::group::{
     prime::{PrimeCurve, PrimeGroup},
@@ -482,6 +482,47 @@ impl Group for G2Projective {
 
 impl PrimeGroup for G2Projective {}
 
+impl<G, S> Sum<(G, S)> for G2Projective
+where
+    G: Into<wrapper_g2_t>,
+    S: Into<wrapper_bn_t>,
+{
+    fn sum<I: Iterator<Item = (G, S)>>(iter: I) -> Self {
+        let mut g2s = Vec::default();
+        let mut scalars = Vec::default();
+        iter.for_each(|(g2, scalar)| {
+            g2s.push(g2.into());
+            scalars.push(scalar.into());
+        });
+
+        let mut g2 = new_wrapper();
+        unsafe {
+            wrapper_g2_simmul(&mut g2, g2s.as_ptr(), scalars.as_ptr(), g2s.len());
+        }
+        g2.into()
+    }
+}
+
+impl<'a, G, S> Sum<&'a (G, S)> for G2Projective
+where
+    &'a G: Into<wrapper_g2_t>,
+    &'a S: Into<wrapper_bn_t>,
+{
+    fn sum<I: Iterator<Item = &'a (G, S)>>(iter: I) -> Self {
+        let mut g2s = Vec::default();
+        let mut scalars = Vec::default();
+        iter.for_each(|(g2, scalar)| {
+            g2s.push(g2.into());
+            scalars.push(scalar.into());
+        });
+
+        let mut g2 = new_wrapper();
+        unsafe {
+            wrapper_g2_simmul(&mut g2, g2s.as_ptr(), scalars.as_ptr(), g2s.len());
+        }
+        g2.into()
+    }
+}
 /// The affine representation of G2.
 pub type G2Affine = Affine<G2Projective>;
 
@@ -624,6 +665,7 @@ impl GroupEncoding for Affine<G2Projective> {
         }
     }
 
+    #[inline]
     fn to_bytes(&self) -> Self::Repr {
         self.0.to_bytes()
     }
@@ -631,6 +673,8 @@ impl GroupEncoding for Affine<G2Projective> {
 
 #[cfg(test)]
 mod test {
+    use pairing::group::ff::Field;
+
     use super::*;
 
     #[test]
@@ -646,5 +690,27 @@ mod test {
         let v1 = G2Projective::random(&mut rng);
         let v2 = G2Projective::random(&mut rng);
         assert_eq!(v1 + v2, v2 + v1);
+    }
+
+    #[test]
+    fn simmul() {
+        let mut rng = rand::thread_rng();
+        let v1 = G2Projective::random(&mut rng);
+        let v2 = G2Projective::random(&mut rng);
+        let s1 = Scalar::random(&mut rng);
+        let s2 = Scalar::random(&mut rng);
+
+        assert_eq!(
+            [(v1, s1), (v2, s2)].iter().sum::<G2Projective>(),
+            v1 * s1 + v2 * s2
+        );
+        assert_eq!(
+            [(&v1, &s1), (&v2, &s2)].into_iter().sum::<G2Projective>(),
+            v1 * s1 + v2 * s2
+        );
+        assert_eq!(
+            [(v1, s1), (v2, s2)].into_iter().sum::<G2Projective>(),
+            v1 * s1 + v2 * s2
+        );
     }
 }
