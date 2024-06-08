@@ -131,15 +131,39 @@ where
     }
 }
 
-impl<G> Mul<&Scalar> for Affine<G>
+impl<'a, G> Mul<&'a Scalar> for Affine<G>
 where
-    for<'a> G: Mul<&'a Scalar, Output = G>,
+    G: Mul<&'a Scalar, Output = G>,
 {
     type Output = G;
 
     #[inline]
-    fn mul(self, rhs: &Scalar) -> Self::Output {
+    fn mul(self, rhs: &'a Scalar) -> Self::Output {
         self.0 * rhs
+    }
+}
+
+impl<'a, 'b, G> Mul<&'b Scalar> for &'a Affine<G>
+where
+    &'a G: Mul<&'b Scalar, Output = G>,
+{
+    type Output = G;
+
+    #[inline]
+    fn mul(self, rhs: &'b Scalar) -> Self::Output {
+        &self.0 * rhs
+    }
+}
+
+impl<'a, G> Mul<Scalar> for &'a Affine<G>
+where
+    &'a G: Mul<Scalar, Output = G>,
+{
+    type Output = G;
+
+    #[inline]
+    fn mul(self, rhs: Scalar) -> Self::Output {
+        &self.0 * rhs
     }
 }
 
