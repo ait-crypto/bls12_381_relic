@@ -18,7 +18,7 @@ pub mod exports {
 }
 
 pub(crate) use affine::Affine;
-pub use engine::{pairing, BLS12Engine};
+pub use engine::{pairing, RelicEngine};
 pub use g1::{G1Affine, G1Projective};
 pub use g2::{G2Affine, G2Projective};
 pub use gt::Gt;

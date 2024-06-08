@@ -5,10 +5,11 @@ use pairing::{Engine, MillerLoopResult, MultiMillerLoop, PairingCurveAffine};
 
 use crate::{gt::new_wrapper, G1Affine, G1Projective, G2Affine, G2Projective, Gt, Scalar};
 
+/// Relic-based [Engine]
 #[derive(Debug, Clone)]
-pub struct BLS12Engine;
+pub struct RelicEngine;
 
-impl Engine for BLS12Engine {
+impl Engine for RelicEngine {
     type Fr = Scalar;
 
     type G1 = G1Projective;
@@ -27,7 +28,7 @@ impl Engine for BLS12Engine {
     }
 }
 
-impl BLS12Engine {
+impl RelicEngine {
     #[inline]
     pub fn projective_pairing(p: &G1Projective, q: &G2Projective) -> Gt {
         let mut gt = new_wrapper();
@@ -53,8 +54,14 @@ impl BLS12Engine {
     }
 }
 
-pub fn pairing(p: &G1Affine, q: &G2Affine) -> Gt {
-    BLS12Engine::pairing(p, q)
+/// Compute pairing of a point in `G1` and one in `G2``
+#[inline]
+pub fn pairing<G1, G2>(p: G1, q: G2) -> Gt
+where
+    G1: AsRef<G1Projective>,
+    G2: AsRef<G2Projective>,
+{
+    RelicEngine::projective_pairing(p.as_ref(), q.as_ref())
 }
 
 impl PairingCurveAffine for G1Affine {
@@ -62,8 +69,9 @@ impl PairingCurveAffine for G1Affine {
 
     type PairingResult = Gt;
 
+    #[inline]
     fn pairing_with(&self, other: &Self::Pair) -> Self::PairingResult {
-        BLS12Engine::pairing(self, other)
+        RelicEngine::pairing(self, other)
     }
 }
 
@@ -72,12 +80,13 @@ impl PairingCurveAffine for G2Affine {
 
     type PairingResult = Gt;
 
+    #[inline]
     fn pairing_with(&self, other: &Self::Pair) -> Self::PairingResult {
-        BLS12Engine::pairing(other, self)
+        RelicEngine::pairing(other, self)
     }
 }
 
-impl MultiMillerLoop for BLS12Engine {
+impl MultiMillerLoop for RelicEngine {
     type G2Prepared = G2Affine;
 
     type Result = MultiMillerLoopResult;
