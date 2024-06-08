@@ -31,6 +31,7 @@ pub(crate) fn new_wrapper() -> wrapper_gt_t {
     }
 }
 
+/// Representation of an group element in the target group
 #[derive(Clone, Copy)]
 #[allow(clippy::large_enum_variant)]
 pub struct Gt(pub(crate) wrapper_gt_t);

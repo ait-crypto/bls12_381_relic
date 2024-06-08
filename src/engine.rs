@@ -29,6 +29,7 @@ impl Engine for RelicEngine {
 }
 
 impl RelicEngine {
+    /// Compute pairing of a point in group `G1` a point in group `G2``
     #[inline]
     pub fn projective_pairing(p: &G1Projective, q: &G2Projective) -> Gt {
         let mut gt = new_wrapper();
@@ -54,7 +55,7 @@ impl RelicEngine {
     }
 }
 
-/// Compute pairing of a point in `G1` and one in `G2``
+/// Compute pairing of a point in `G1` and one in `G2`
 #[inline]
 pub fn pairing<G1, G2>(p: G1, q: G2) -> Gt
 where

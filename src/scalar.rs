@@ -27,11 +27,14 @@ fn new_wrapper() -> wrapper_bn_t {
 
 /// Scalar in the prime field induced by the order of the elliptic curve groups
 ///
-/// The interface is intended to be compatible with `bls12_381::Scalar`.
+/// The interface is intended to be compatible with `bls12_381::Scalar`. The
+/// variants are an implementation detail and may change without notice.
 #[derive(Clone, Copy)]
 #[allow(clippy::large_enum_variant)]
 pub enum Scalar {
+    /// Byte representation for const construction
     Bytes([u8; 32]),
+    /// Relic-based representation
     Relic(wrapper_bn_t),
 }
 
@@ -773,8 +776,9 @@ impl Field for Scalar {
         CtOption::new(Scalar::Relic(value), ((ret == RLC_OK) as u8).into())
     }
 
-    fn sqrt_ratio(num: &Self, div: &Self) -> (Choice, Self) {
-        todo!()
+    fn sqrt_ratio(_num: &Self, _div: &Self) -> (Choice, Self) {
+        // TODO: implement
+        unimplemented!()
     }
 
     fn is_zero_vartime(&self) -> bool {

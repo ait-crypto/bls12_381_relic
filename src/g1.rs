@@ -35,12 +35,14 @@ fn new_wrapper() -> wrapper_g1_t {
     }
 }
 
+/// Representation of a G1 element
 #[derive(Clone, Copy)]
 #[allow(clippy::large_enum_variant)]
 pub struct G1Projective(pub(crate) wrapper_g1_t);
 
 impl G1Projective {
-    // FIXME: make compatible with bls12-381 crate
+    /// Hash to a point on the curve.
+    // TODO: make compatible with bls12-381 crate
     pub fn hash_to_curve(msg: impl AsRef<[u8]>, dst: &[u8]) -> Self {
         let mut g1 = new_wrapper();
         let msg = msg.as_ref();
@@ -700,18 +702,16 @@ mod test {
         let v2 = G1Projective::random(&mut rng);
         let s1 = Scalar::random(&mut rng);
         let s2 = Scalar::random(&mut rng);
+        let check = v1 * s1 + v2 * s2;
 
-        assert_eq!(
-            [(v1, s1), (v2, s2)].iter().sum::<G1Projective>(),
-            v1 * s1 + v2 * s2
-        );
+        assert_eq!([(v1, s1), (v2, s2)].iter().sum::<G1Projective>(), check);
         assert_eq!(
             [(&v1, &s1), (&v2, &s2)].into_iter().sum::<G1Projective>(),
-            v1 * s1 + v2 * s2
+            check
         );
         assert_eq!(
             [(v1, s1), (v2, s2)].into_iter().sum::<G1Projective>(),
-            v1 * s1 + v2 * s2
+            check
         );
     }
 }
