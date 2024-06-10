@@ -1,6 +1,5 @@
 #include "wrapper.h"
 
-#include <stdbool.h>
 #include <assert.h>
 
 #if ALLOC != AUTO
