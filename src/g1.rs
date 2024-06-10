@@ -320,8 +320,6 @@ impl<'a> Sum<&'a G1Projective> for G1Projective {
     }
 }
 
-// TODO: Scalar * G!
-
 impl Mul<Scalar> for G1Projective {
     type Output = G1Projective;
 
@@ -389,7 +387,44 @@ impl Mul<&Scalar> for &G1Projective {
     }
 }
 
+impl Mul<G1Projective> for Scalar {
+    type Output = G1Projective;
+
+    #[inline]
+    fn mul(self, rhs: G1Projective) -> Self::Output {
+        rhs * self
+    }
+}
+
+impl Mul<&G1Projective> for Scalar {
+    type Output = G1Projective;
+
+    #[inline]
+    fn mul(self, rhs: &G1Projective) -> Self::Output {
+        rhs * self
+    }
+}
+
+impl Mul<G1Projective> for &Scalar {
+    type Output = G1Projective;
+
+    #[inline]
+    fn mul(self, rhs: G1Projective) -> Self::Output {
+        rhs * self
+    }
+}
+
+impl Mul<&G1Projective> for &Scalar {
+    type Output = G1Projective;
+
+    #[inline]
+    fn mul(self, rhs: &G1Projective) -> Self::Output {
+        rhs * self
+    }
+}
+
 impl MulAssign<Scalar> for G1Projective {
+    #[inline]
     fn mul_assign(&mut self, rhs: Scalar) {
         *self *= &rhs;
     }
