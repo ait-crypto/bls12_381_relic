@@ -2,7 +2,8 @@ use std::{env, path::PathBuf};
 
 #[cfg(feature = "vendored")]
 fn build() -> PathBuf {
-    let dst = cmake::Config::new("relic")
+    let mut cmake = cmake::Config::new("relic");
+    cmake
         .define("WSIZE", env::var("CARGO_CFG_TARGET_POINTER_WIDTH").unwrap())
         .define("RAND", "UDEV")
         .define("SHLIB", "OFF")
@@ -11,7 +12,8 @@ fn build() -> PathBuf {
         .define("TIMER", "")
         .define(
             "CHECK",
-            if env::var("PROFILE").unwrap() == "dev"
+            if env::var("PROFILE").unwrap() == "debug"
+                || env::var("PROFILE").unwrap() == "dev"
                 || env::var("DEBUG").unwrap() == "0"
                 || env::var("DEBUG").unwrap() == "false"
             {
@@ -23,14 +25,6 @@ fn build() -> PathBuf {
         .define("BENCH", "0")
         .define("TESTS", "0")
         .define("VERBS", "OFF")
-        .define(
-            "ARITH",
-            if env::var("CARGO_CFG_TARGET_ARCH").unwrap() == "x86_64" {
-                "x64-asm-382"
-            } else {
-                "easy "
-            },
-        )
         .define("FP_PRIME", "381")
         .define("FP_METHD", "INTEG;INTEG;INTEG;MONTY;LOWER;LOWER;SLIDE")
         .define("FP_PMERS", "off")
@@ -38,12 +32,14 @@ fn build() -> PathBuf {
         .define("FPX_METHD", "INTEG;INTEG;LAZYR")
         .define("EP_PLAIN", "off")
         .define("EP_SUPER", "off")
-        .define("PP_METHD", "LAZYR;OATEP")
-        .build();
+        .define("PP_METHD", "LAZYR;OATEP");
+    if env::var("CARGO_CFG_TARGET_ARCH").unwrap() == "x86_64" {
+        cmake.define("ARCH", "X64").define("ARITH", "x64-asm-382");
+    }
 
+    let dst = cmake.build();
     println!("cargo:rustc-link-search=native={}/lib", dst.display());
     println!("cargo:rustc-link-lib=static=relic_s");
-
     dst
 }
 
