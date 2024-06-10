@@ -71,12 +71,14 @@ impl G2Projective {
 }
 
 impl From<wrapper_g2_t> for G2Projective {
+    #[inline]
     fn from(value: wrapper_g2_t) -> Self {
         Self(value)
     }
 }
 
 impl From<&wrapper_g2_t> for G2Projective {
+    #[inline]
     fn from(value: &wrapper_g2_t) -> Self {
         Self(*value)
     }
@@ -85,6 +87,7 @@ impl From<&wrapper_g2_t> for G2Projective {
 impl TryFrom<[u8; BYTES_SIZE]> for G2Projective {
     type Error = Error;
 
+    #[inline]
     fn try_from(value: [u8; BYTES_SIZE]) -> Result<Self, Self::Error> {
         Self::try_from(&value)
     }
@@ -109,12 +112,14 @@ impl TryFrom<&[u8; BYTES_SIZE]> for G2Projective {
 }
 
 impl From<G2Projective> for wrapper_g2_t {
+    #[inline]
     fn from(value: G2Projective) -> Self {
         value.0
     }
 }
 
 impl From<&G2Projective> for wrapper_g2_t {
+    #[inline]
     fn from(value: &G2Projective) -> Self {
         value.0
     }
@@ -161,6 +166,7 @@ impl TryFrom<&[u8]> for G2Projective {
 impl Add for G2Projective {
     type Output = G2Projective;
 
+    #[inline]
     fn add(mut self, rhs: Self) -> Self::Output {
         unsafe {
             wrapper_g2_add_assign(&mut self.0, &rhs.into());
@@ -172,6 +178,7 @@ impl Add for G2Projective {
 impl Add<&G2Projective> for G2Projective {
     type Output = G2Projective;
 
+    #[inline]
     fn add(mut self, rhs: &Self) -> Self::Output {
         unsafe { wrapper_g2_add_assign(&mut self.0, &rhs.0) };
         self
@@ -181,6 +188,7 @@ impl Add<&G2Projective> for G2Projective {
 impl Add for &G2Projective {
     type Output = G2Projective;
 
+    #[inline]
     fn add(self, rhs: Self) -> Self::Output {
         let mut ret = new_wrapper();
         unsafe {
@@ -193,18 +201,21 @@ impl Add for &G2Projective {
 impl Add<G2Projective> for &G2Projective {
     type Output = G2Projective;
 
+    #[inline]
     fn add(self, rhs: G2Projective) -> Self::Output {
         rhs + self
     }
 }
 
 impl AddAssign for G2Projective {
+    #[inline]
     fn add_assign(&mut self, rhs: Self) {
         unsafe { wrapper_g2_add_assign(&mut self.0, &rhs.0) };
     }
 }
 
 impl AddAssign<&G2Projective> for G2Projective {
+    #[inline]
     fn add_assign(&mut self, rhs: &Self) {
         unsafe { wrapper_g2_add_assign(&mut self.0, &rhs.0) };
     }
@@ -213,6 +224,7 @@ impl AddAssign<&G2Projective> for G2Projective {
 impl Neg for G2Projective {
     type Output = G2Projective;
 
+    #[inline]
     fn neg(mut self) -> Self::Output {
         unsafe {
             wrapper_g2_neg(&mut self.0);
@@ -224,6 +236,7 @@ impl Neg for G2Projective {
 impl Neg for &G2Projective {
     type Output = G2Projective;
 
+    #[inline]
     fn neg(self) -> Self::Output {
         let mut ret = self.into();
         unsafe {
@@ -236,6 +249,7 @@ impl Neg for &G2Projective {
 impl Sub for G2Projective {
     type Output = G2Projective;
 
+    #[inline]
     fn sub(mut self, rhs: Self) -> Self::Output {
         unsafe {
             wrapper_g2_sub_assign(&mut self.0, &rhs.into());
@@ -247,6 +261,7 @@ impl Sub for G2Projective {
 impl Sub<&G2Projective> for G2Projective {
     type Output = G2Projective;
 
+    #[inline]
     fn sub(mut self, rhs: &Self) -> Self::Output {
         unsafe { wrapper_g2_sub_assign(&mut self.0, &rhs.0) };
         self
@@ -256,6 +271,7 @@ impl Sub<&G2Projective> for G2Projective {
 impl Sub for &G2Projective {
     type Output = G2Projective;
 
+    #[inline]
     fn sub(self, rhs: Self) -> Self::Output {
         let mut ret = new_wrapper();
         unsafe {
@@ -268,6 +284,7 @@ impl Sub for &G2Projective {
 impl Sub<G2Projective> for &G2Projective {
     type Output = G2Projective;
 
+    #[inline]
     fn sub(self, rhs: G2Projective) -> Self::Output {
         let mut ret = new_wrapper();
         unsafe {
@@ -278,12 +295,14 @@ impl Sub<G2Projective> for &G2Projective {
 }
 
 impl SubAssign for G2Projective {
+    #[inline]
     fn sub_assign(&mut self, rhs: Self) {
         unsafe { wrapper_g2_sub_assign(&mut self.0, &rhs.0) };
     }
 }
 
 impl SubAssign<&G2Projective> for G2Projective {
+    #[inline]
     fn sub_assign(&mut self, rhs: &Self) {
         unsafe { wrapper_g2_sub_assign(&mut self.0, &rhs.0) };
     }
@@ -447,6 +466,7 @@ impl MulAssign<&Scalar> for G2Projective {
 }
 
 impl PartialEq for G2Projective {
+    #[inline]
     fn eq(&self, other: &Self) -> bool {
         unsafe { wrapper_g2_is_equal(&self.0, &other.0) }
     }
@@ -501,10 +521,12 @@ impl Group for G2Projective {
         Self(g2)
     }
 
+    #[inline]
     fn identity() -> Self {
         Self::default()
     }
 
+    #[inline]
     fn generator() -> Self {
         let mut value = new_wrapper();
         unsafe {
@@ -513,10 +535,12 @@ impl Group for G2Projective {
         Self(value)
     }
 
+    #[inline]
     fn is_identity(&self) -> Choice {
         Choice::from(unsafe { wrapper_g2_is_neutral(&self.0) } as u8)
     }
 
+    #[inline]
     fn double(&self) -> Self {
         let mut ret = new_wrapper();
         unsafe {
@@ -571,6 +595,7 @@ where
         g2.into()
     }
 }
+
 /// The affine representation of G2.
 pub type G2Affine = Affine<G2Projective>;
 
@@ -593,6 +618,7 @@ impl PrimeCurve for G2Projective {
 impl Add<Affine<G2Projective>> for G2Projective {
     type Output = G2Projective;
 
+    #[inline]
     fn add(self, rhs: Affine<G2Projective>) -> Self::Output {
         self + rhs.0
     }
@@ -601,6 +627,7 @@ impl Add<Affine<G2Projective>> for G2Projective {
 impl Add<&Affine<G2Projective>> for G2Projective {
     type Output = G2Projective;
 
+    #[inline]
     fn add(self, rhs: &Affine<G2Projective>) -> Self::Output {
         self + rhs.0
     }
@@ -609,6 +636,7 @@ impl Add<&Affine<G2Projective>> for G2Projective {
 impl Sub<Affine<G2Projective>> for G2Projective {
     type Output = G2Projective;
 
+    #[inline]
     fn sub(self, rhs: Affine<G2Projective>) -> Self::Output {
         self - rhs.0
     }
@@ -617,42 +645,49 @@ impl Sub<Affine<G2Projective>> for G2Projective {
 impl Sub<&Affine<G2Projective>> for G2Projective {
     type Output = G2Projective;
 
+    #[inline]
     fn sub(self, rhs: &Affine<G2Projective>) -> Self::Output {
         self - rhs.0
     }
 }
 
 impl AddAssign<Affine<G2Projective>> for G2Projective {
+    #[inline]
     fn add_assign(&mut self, rhs: Affine<G2Projective>) {
         *self += rhs.0;
     }
 }
 
 impl AddAssign<&Affine<G2Projective>> for G2Projective {
+    #[inline]
     fn add_assign(&mut self, rhs: &Affine<G2Projective>) {
         *self += rhs.0;
     }
 }
 
 impl SubAssign<Affine<G2Projective>> for G2Projective {
+    #[inline]
     fn sub_assign(&mut self, rhs: Affine<G2Projective>) {
         *self -= rhs.0;
     }
 }
 
 impl SubAssign<&Affine<G2Projective>> for G2Projective {
+    #[inline]
     fn sub_assign(&mut self, rhs: &Affine<G2Projective>) {
         *self -= rhs.0;
     }
 }
 
 impl From<Affine<G2Projective>> for G2Projective {
+    #[inline]
     fn from(value: Affine<G2Projective>) -> Self {
         value.0
     }
 }
 
 impl From<&Affine<G2Projective>> for G2Projective {
+    #[inline]
     fn from(value: &Affine<G2Projective>) -> Self {
         value.0
     }
@@ -716,6 +751,15 @@ impl GroupEncoding for Affine<G2Projective> {
     #[inline]
     fn to_bytes(&self) -> Self::Repr {
         self.0.to_bytes()
+    }
+}
+
+#[cfg(feature = "zeroize")]
+impl zeroize::Zeroize for G2Projective {
+    fn zeroize(&mut self) {
+        unsafe {
+            wrapper_g2_neutral(&mut self.0);
+        }
     }
 }
 

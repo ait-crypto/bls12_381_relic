@@ -47,12 +47,14 @@ impl Default for Gt {
 }
 
 impl From<wrapper_gt_t> for Gt {
+    #[inline]
     fn from(value: wrapper_gt_t) -> Self {
         Self(value)
     }
 }
 
 impl From<&wrapper_gt_t> for Gt {
+    #[inline]
     fn from(value: &wrapper_gt_t) -> Self {
         Self(*value)
     }
@@ -61,6 +63,7 @@ impl From<&wrapper_gt_t> for Gt {
 impl TryFrom<[u8; BYTES_SIZE]> for Gt {
     type Error = Error;
 
+    #[inline]
     fn try_from(value: [u8; BYTES_SIZE]) -> Result<Self, Self::Error> {
         Self::try_from(&value)
     }
@@ -85,12 +88,14 @@ impl TryFrom<&[u8; BYTES_SIZE]> for Gt {
 }
 
 impl From<Gt> for wrapper_gt_t {
+    #[inline]
     fn from(value: Gt) -> Self {
         value.0
     }
 }
 
 impl From<&Gt> for wrapper_gt_t {
+    #[inline]
     fn from(value: &Gt) -> Self {
         value.0
     }
@@ -137,6 +142,7 @@ impl TryFrom<&[u8]> for Gt {
 impl Add for Gt {
     type Output = Gt;
 
+    #[inline]
     fn add(mut self, rhs: Self) -> Self::Output {
         unsafe {
             wrapper_gt_add_assign(&mut self.0, &rhs.into());
@@ -148,6 +154,7 @@ impl Add for Gt {
 impl Add<&Gt> for Gt {
     type Output = Gt;
 
+    #[inline]
     fn add(mut self, rhs: &Self) -> Self::Output {
         unsafe { wrapper_gt_add_assign(&mut self.0, &rhs.0) };
         self
@@ -157,6 +164,7 @@ impl Add<&Gt> for Gt {
 impl Add for &Gt {
     type Output = Gt;
 
+    #[inline]
     fn add(self, rhs: Self) -> Self::Output {
         let mut ret = new_wrapper();
         unsafe {
@@ -169,18 +177,21 @@ impl Add for &Gt {
 impl Add<Gt> for &Gt {
     type Output = Gt;
 
+    #[inline]
     fn add(self, rhs: Gt) -> Self::Output {
         rhs + self
     }
 }
 
 impl AddAssign for Gt {
+    #[inline]
     fn add_assign(&mut self, rhs: Self) {
         unsafe { wrapper_gt_add_assign(&mut self.0, &rhs.0) };
     }
 }
 
 impl AddAssign<&Gt> for Gt {
+    #[inline]
     fn add_assign(&mut self, rhs: &Self) {
         unsafe { wrapper_gt_add_assign(&mut self.0, &rhs.0) };
     }
@@ -189,6 +200,7 @@ impl AddAssign<&Gt> for Gt {
 impl Neg for Gt {
     type Output = Gt;
 
+    #[inline]
     fn neg(mut self) -> Self::Output {
         unsafe {
             wrapper_gt_neg(&mut self.0);
@@ -200,6 +212,7 @@ impl Neg for Gt {
 impl Neg for &Gt {
     type Output = Gt;
 
+    #[inline]
     fn neg(self) -> Self::Output {
         let mut ret = self.into();
         unsafe {
@@ -212,6 +225,7 @@ impl Neg for &Gt {
 impl Sub for Gt {
     type Output = Gt;
 
+    #[inline]
     fn sub(self, rhs: Self) -> Self::Output {
         self + -rhs
     }
@@ -220,6 +234,7 @@ impl Sub for Gt {
 impl Sub<&Gt> for Gt {
     type Output = Gt;
 
+    #[inline]
     fn sub(self, rhs: &Self) -> Self::Output {
         self + -rhs
     }
@@ -228,6 +243,7 @@ impl Sub<&Gt> for Gt {
 impl Sub for &Gt {
     type Output = Gt;
 
+    #[inline]
     fn sub(self, rhs: Self) -> Self::Output {
         self + -rhs
     }
@@ -236,18 +252,21 @@ impl Sub for &Gt {
 impl Sub<Gt> for &Gt {
     type Output = Gt;
 
+    #[inline]
     fn sub(self, rhs: Gt) -> Self::Output {
         self + -rhs
     }
 }
 
 impl SubAssign for Gt {
+    #[inline]
     fn sub_assign(&mut self, rhs: Self) {
         *self += -rhs;
     }
 }
 
 impl SubAssign<&Gt> for Gt {
+    #[inline]
     fn sub_assign(&mut self, rhs: &Self) {
         *self += -rhs;
     }
@@ -288,6 +307,7 @@ impl<'a> Sum<&'a Gt> for Gt {
 impl Mul<Scalar> for Gt {
     type Output = Gt;
 
+    #[inline]
     fn mul(self, rhs: Scalar) -> Self::Output {
         self * &rhs
     }
@@ -353,6 +373,7 @@ impl Mul<&Scalar> for &Gt {
 }
 
 impl MulAssign<Scalar> for Gt {
+    #[inline]
     fn mul_assign(&mut self, rhs: Scalar) {
         *self *= &rhs;
     }
@@ -375,6 +396,7 @@ impl MulAssign<&Scalar> for Gt {
 }
 
 impl PartialEq for Gt {
+    #[inline]
     fn eq(&self, other: &Self) -> bool {
         unsafe { wrapper_gt_is_equal(&self.0, &other.0) }
     }
@@ -390,6 +412,7 @@ impl fmt::Debug for Gt {
 }
 
 impl GroupEncoding for Gt {
+    // FIXME: use [u8; 576]
     type Repr = GenericArray<u8, U576>;
 
     fn from_bytes(bytes: &Self::Repr) -> CtOption<Self> {
@@ -413,6 +436,7 @@ impl GroupEncoding for Gt {
         }
     }
 
+    #[inline]
     fn to_bytes(&self) -> Self::Repr {
         GenericArray::from_array(self.into())
     }
@@ -429,10 +453,12 @@ impl Group for Gt {
         Self(gt)
     }
 
+    #[inline]
     fn identity() -> Self {
         Self::default()
     }
 
+    #[inline]
     fn generator() -> Self {
         let mut value = new_wrapper();
         unsafe {
@@ -441,10 +467,12 @@ impl Group for Gt {
         Self(value)
     }
 
+    #[inline]
     fn is_identity(&self) -> Choice {
         Choice::from(unsafe { wrapper_gt_is_neutral(&self.0) } as u8)
     }
 
+    #[inline]
     fn double(&self) -> Self {
         let mut ret = new_wrapper();
         unsafe {
