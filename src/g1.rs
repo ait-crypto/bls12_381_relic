@@ -1,3 +1,5 @@
+//! Implementation of the first source group `G1`
+
 use core::{
     fmt,
     iter::Sum,

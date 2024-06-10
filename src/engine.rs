@@ -1,3 +1,14 @@
+//! Pairing-engine based on relic
+//!
+//! The `pairing` crate defines an [Engine] that collects the scalar field,
+//! projective and affine representations of the source groups and the target
+//! groups. Most importantly, it also provides the [Engine::pairing] function to
+//! compute the pairing.
+//!
+//! In addition to the engine, this module also provides some additional
+//! functions that evaluate the pairing on projective coordinations and sums of
+//! pairings (as `Gt` is also using additive notation).
+
 #[cfg(feature = "alloc")]
 extern crate alloc;
 #[cfg(feature = "alloc")]
@@ -36,7 +47,7 @@ impl Engine for RelicEngine {
 }
 
 impl RelicEngine {
-    /// Compute pairing of a point in group `G1` a point in group `G2``
+    /// Compute pairing of a point in group `G1` a point in group `G2`
     #[inline]
     pub fn projective_pairing(p: &G1Projective, q: &G2Projective) -> Gt {
         let mut gt = new_wrapper();

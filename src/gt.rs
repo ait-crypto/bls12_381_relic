@@ -1,3 +1,5 @@
+//! Implementation of the target group `Gt`
+
 use core::{
     fmt,
     iter::Sum,

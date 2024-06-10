@@ -1,3 +1,5 @@
+//! Implementation of the second source group `G2`
+
 use core::{
     fmt,
     iter::Sum,

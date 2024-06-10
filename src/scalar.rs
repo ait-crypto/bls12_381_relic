@@ -1,3 +1,7 @@
+//! Scalar field implementation
+//!
+//! This module provides the implementation of the scalar field.
+
 use core::{
     fmt,
     iter::{Product, Sum},
