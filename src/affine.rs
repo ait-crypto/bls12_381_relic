@@ -218,3 +218,13 @@ where
         self.to_bytes()
     }
 }
+
+#[cfg(feature = "zeroize")]
+impl<G> zeroize::Zeroize for Affine<G>
+where
+    G: zeroize::Zeroize,
+{
+    fn zeroize(&mut self) {
+        self.0.zeroize();
+    }
+}
