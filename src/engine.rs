@@ -1,7 +1,4 @@
 #[cfg(feature = "alloc")]
-use core::ops::{Add, AddAssign};
-
-#[cfg(feature = "alloc")]
 extern crate alloc;
 #[cfg(feature = "alloc")]
 use alloc::vec::Vec;
@@ -49,6 +46,7 @@ impl RelicEngine {
         gt.into()
     }
 
+    /// Compute multiple pairings and their sum
     #[cfg(feature = "alloc")]
     pub fn projective_multi_miller_loop(terms: &[(&G1Projective, &G2Projective)]) -> Gt {
         let mut g1s = Vec::with_capacity(terms.len());
@@ -102,7 +100,7 @@ impl PairingCurveAffine for G2Affine {
 impl MultiMillerLoop for RelicEngine {
     type G2Prepared = G2Affine;
 
-    type Result = MultiMillerLoopResult;
+    type Result = Gt;
 
     fn multi_miller_loop(terms: &[(&Self::G1Affine, &Self::G2Prepared)]) -> Self::Result {
         let mut g1s = Vec::with_capacity(terms.len());
@@ -116,52 +114,16 @@ impl MultiMillerLoop for RelicEngine {
         unsafe {
             wrapper_pc_map_sim(&mut gt, g1s.as_ptr(), g2s.as_ptr(), terms.len());
         }
-        MultiMillerLoopResult(gt.into())
+        gt.into()
     }
 }
 
 #[cfg(feature = "alloc")]
-#[derive(Debug, Clone, Copy, Default)]
-pub struct MultiMillerLoopResult(Gt);
-
-#[cfg(feature = "alloc")]
-impl MillerLoopResult for MultiMillerLoopResult {
+impl MillerLoopResult for Gt {
     type Gt = Gt;
 
     fn final_exponentiation(&self) -> Self::Gt {
-        self.0
-    }
-}
-
-#[cfg(feature = "alloc")]
-impl Add for MultiMillerLoopResult {
-    type Output = MultiMillerLoopResult;
-
-    fn add(self, rhs: Self) -> Self::Output {
-        Self(self.0 + rhs.0)
-    }
-}
-
-#[cfg(feature = "alloc")]
-impl Add<&Self> for MultiMillerLoopResult {
-    type Output = MultiMillerLoopResult;
-
-    fn add(self, rhs: &Self) -> Self::Output {
-        Self(self.0 + rhs.0)
-    }
-}
-
-#[cfg(feature = "alloc")]
-impl AddAssign for MultiMillerLoopResult {
-    fn add_assign(&mut self, rhs: Self) {
-        self.0 += rhs.0;
-    }
-}
-
-#[cfg(feature = "alloc")]
-impl AddAssign<&Self> for MultiMillerLoopResult {
-    fn add_assign(&mut self, rhs: &Self) {
-        self.0 += rhs.0;
+        *self
     }
 }
 
