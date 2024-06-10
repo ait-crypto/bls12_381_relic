@@ -3,17 +3,34 @@ use std::{env, path::PathBuf};
 #[cfg(feature = "vendored")]
 fn build() -> PathBuf {
     let dst = cmake::Config::new("relic")
-        .define("WSIZE", "64")
+        .define("WSIZE", env::var("CARGO_CFG_TARGET_POINTER_WIDTH").unwrap())
         .define("RAND", "UDEV")
         .define("SHLIB", "OFF")
         .define("STBIN", "OFF")
         .define("STLIB", "ON")
         .define("TIMER", "")
-        .define("CHECK", "OFF")
+        .define(
+            "CHECK",
+            if env::var("PROFILE").unwrap() == "dev"
+                || env::var("DEBUG").unwrap() == "0"
+                || env::var("DEBUG").unwrap() == "false"
+            {
+                "ON"
+            } else {
+                "OFF"
+            },
+        )
         .define("BENCH", "0")
         .define("TESTS", "0")
         .define("VERBS", "OFF")
-        .define("ARITH", "x64-asm-382")
+        .define(
+            "ARITH",
+            if env::var("CARGO_CFG_TARGET_ARCH").unwrap() == "x86_64" {
+                "x64-asm-382"
+            } else {
+                "easy "
+            },
+        )
         .define("FP_PRIME", "381")
         .define("FP_METHD", "INTEG;INTEG;INTEG;MONTY;LOWER;LOWER;SLIDE")
         .define("FP_PMERS", "off")
@@ -100,5 +117,5 @@ fn main() {
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
     bindings
         .write_to_file(out_path.join("bindings.rs"))
-        .expect("Couldn't write bindings!");
+        .expect("Unable to write bindings");
 }
