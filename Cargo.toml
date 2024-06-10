@@ -7,7 +7,7 @@ edition = "2021"
 generic-array = { version = "1", default-features = false, features = [
   "const-default",
 ] }
-librelic-sys = { path = "librelic-sys" }
+librelic-sys = { path = "librelic-sys", default-features = false }
 pairing = { version = "0.23" }
 rand_core = { version = "0.6", default-features = false }
 subtle = { version = "2", default-features = false, features = [
@@ -22,5 +22,8 @@ rand = "0.8"
 [features]
 alloc = []
 std = ["alloc", "dep:thiserror"]
-default = ["alloc"]
+default = ["alloc", "system"]
 zeroize = ["dep:zeroize"]
+# from librelic-sys
+system = ["librelic-sys/system"]
+vendored = ["librelic-sys/vendored"]
