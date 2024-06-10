@@ -5,16 +5,23 @@ use core::{
     ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign},
 };
 
+#[cfg(feature = "alloc")]
+extern crate alloc;
+#[cfg(feature = "alloc")]
+use alloc::vec::Vec;
+
 use generic_array::{
     typenum::{Unsigned, U193},
     GenericArray,
 };
+#[cfg(feature = "alloc")]
+use librelic_sys::{wrapper_bn_t, wrapper_g2_simmul};
 use librelic_sys::{
-    wrapper_bn_t, wrapper_g2_add, wrapper_g2_add_assign, wrapper_g2_double, wrapper_g2_generator,
+    wrapper_g2_add, wrapper_g2_add_assign, wrapper_g2_double, wrapper_g2_generator,
     wrapper_g2_hash_to_curve, wrapper_g2_init, wrapper_g2_is_equal, wrapper_g2_is_neutral,
     wrapper_g2_is_valid, wrapper_g2_mul, wrapper_g2_mul_assign, wrapper_g2_neg, wrapper_g2_neutral,
-    wrapper_g2_norm, wrapper_g2_rand, wrapper_g2_read_bin, wrapper_g2_simmul, wrapper_g2_sub,
-    wrapper_g2_sub_assign, wrapper_g2_t, wrapper_g2_write_bin, RLC_OK,
+    wrapper_g2_norm, wrapper_g2_rand, wrapper_g2_read_bin, wrapper_g2_sub, wrapper_g2_sub_assign,
+    wrapper_g2_t, wrapper_g2_write_bin, RLC_OK,
 };
 use pairing::group::{
     prime::{PrimeCurve, PrimeGroup},
@@ -485,6 +492,7 @@ impl Group for G2Projective {
 
 impl PrimeGroup for G2Projective {}
 
+#[cfg(feature = "alloc")]
 impl<G, S> Sum<(G, S)> for G2Projective
 where
     G: Into<wrapper_g2_t>,
@@ -506,6 +514,7 @@ where
     }
 }
 
+#[cfg(feature = "alloc")]
 impl<'a, G, S> Sum<&'a (G, S)> for G2Projective
 where
     &'a G: Into<wrapper_g2_t>,
@@ -676,6 +685,7 @@ impl GroupEncoding for Affine<G2Projective> {
 
 #[cfg(test)]
 mod test {
+    #[cfg(eature = "alloc")]
     use pairing::group::ff::Field;
 
     use super::*;
@@ -695,6 +705,7 @@ mod test {
         assert_eq!(v1 + v2, v2 + v1);
     }
 
+    #[cfg(eature = "alloc")]
     #[test]
     fn simmul() {
         let mut rng = rand::thread_rng();

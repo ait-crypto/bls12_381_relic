@@ -1,7 +1,17 @@
+#[cfg(feature = "alloc")]
 use core::ops::{Add, AddAssign};
 
-use librelic_sys::{wrapper_pc_map, wrapper_pc_map_sim};
-use pairing::{Engine, MillerLoopResult, MultiMillerLoop, PairingCurveAffine};
+#[cfg(feature = "alloc")]
+extern crate alloc;
+#[cfg(feature = "alloc")]
+use alloc::vec::Vec;
+
+use librelic_sys::wrapper_pc_map;
+#[cfg(feature = "alloc")]
+use librelic_sys::wrapper_pc_map_sim;
+use pairing::{Engine, PairingCurveAffine};
+#[cfg(feature = "alloc")]
+use pairing::{MillerLoopResult, MultiMillerLoop};
 
 use crate::{gt::new_wrapper, G1Affine, G1Projective, G2Affine, G2Projective, Gt, Scalar};
 
@@ -39,6 +49,7 @@ impl RelicEngine {
         gt.into()
     }
 
+    #[cfg(feature = "alloc")]
     pub fn projective_multi_miller_loop(terms: &[(&G1Projective, &G2Projective)]) -> Gt {
         let mut g1s = Vec::with_capacity(terms.len());
         let mut g2s = Vec::with_capacity(terms.len());
@@ -87,6 +98,7 @@ impl PairingCurveAffine for G2Affine {
     }
 }
 
+#[cfg(feature = "alloc")]
 impl MultiMillerLoop for RelicEngine {
     type G2Prepared = G2Affine;
 
@@ -108,9 +120,11 @@ impl MultiMillerLoop for RelicEngine {
     }
 }
 
+#[cfg(feature = "alloc")]
 #[derive(Debug, Clone, Copy, Default)]
 pub struct MultiMillerLoopResult(Gt);
 
+#[cfg(feature = "alloc")]
 impl MillerLoopResult for MultiMillerLoopResult {
     type Gt = Gt;
 
@@ -119,6 +133,7 @@ impl MillerLoopResult for MultiMillerLoopResult {
     }
 }
 
+#[cfg(feature = "alloc")]
 impl Add for MultiMillerLoopResult {
     type Output = MultiMillerLoopResult;
 
@@ -127,6 +142,7 @@ impl Add for MultiMillerLoopResult {
     }
 }
 
+#[cfg(feature = "alloc")]
 impl Add<&Self> for MultiMillerLoopResult {
     type Output = MultiMillerLoopResult;
 
@@ -135,12 +151,14 @@ impl Add<&Self> for MultiMillerLoopResult {
     }
 }
 
+#[cfg(feature = "alloc")]
 impl AddAssign for MultiMillerLoopResult {
     fn add_assign(&mut self, rhs: Self) {
         self.0 += rhs.0;
     }
 }
 
+#[cfg(feature = "alloc")]
 impl AddAssign<&Self> for MultiMillerLoopResult {
     fn add_assign(&mut self, rhs: &Self) {
         self.0 += rhs.0;

@@ -2,6 +2,9 @@
 //!
 //! This crate provides a `pairing`-compatible wrapper for BLS12-381 provided by relic.
 
+#![cfg_attr(all(not(feature = "std"), not(test)), no_std)]
+#![warn(missing_docs)]
+
 mod affine;
 pub mod engine;
 pub mod g1;
@@ -27,12 +30,13 @@ pub use scalar::Scalar;
 /// Error type
 ///
 /// This enum covers all errors that are produced by the crate.
-#[derive(thiserror::Error, Debug)]
+#[derive(Debug)]
+#[cfg_attr(feature = "std", derive(thiserror::Error))]
 pub enum Error {
     /// Relic failure
-    #[error("Relic failure: {0}")]
+    #[cfg_attr(feature = "std", error("Relic failure: {0}"))]
     RelicError(i32),
     /// Invalid byte representation of group elements or scalars
-    #[error("Invalid representation as bytes.")]
+    #[cfg_attr(feature = "std", error("Invalid representation as bytes."))]
     InvalidBytesRepresentation,
 }
