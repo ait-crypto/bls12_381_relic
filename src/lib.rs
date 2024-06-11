@@ -1,6 +1,6 @@
-//! BLS12-381 from relic
+//! # BLS12-381 from [relic]
 //!
-//! This crate provides a `pairing`-compatible wrapper for BLS12-381 provided as
+//! This crate provides a [pairing]-compatible wrapper for BLS12-381 provided as
 //! by relic.
 //!
 //! ```
@@ -14,6 +14,17 @@
 //! let sigma = base * secret;
 //! assert_eq!(pairing(sigma, G2Projective::generator()), pairing(base, pk));
 //! ```
+//!
+//! ## Additional feature
+//!
+//! ## Notation
+//!
+//! The [pairing] uses additive notation for all groups, this crate follows the
+//! same convention. This is especially noticeable in the names of some
+//! functions. Instead of talking about pairing products, the same idea is
+//! referred to as pairing sums or sums of pairings.
+//!
+//! [relic]: https://github.com/relic-toolkit/relic
 
 #![cfg_attr(all(not(feature = "std"), not(test)), no_std)]
 #![warn(missing_docs)]
