@@ -242,14 +242,7 @@ bool wrapper_bn_is_odd(const wrapper_bn_t* value) {
 /* --- G1 --- */
 
 void wrapper_g1_init(wrapper_g1_t* g1) {
-  RLC_TRY {
-    g1_null(*g1);
-    g1_new(*g1);
-  }
-  RLC_CATCH_ANY {
-    g1_free(*g1);
-    assert(false);
-  }
+  memset(g1, 0, sizeof(*g1));
 }
 
 void wrapper_g1_neutral(wrapper_g1_t* g1) {
@@ -422,14 +415,7 @@ bool wrapper_g1_is_equal(const wrapper_g1_t* lhs, const wrapper_g1_t* rhs) {
 /* --- G2 --- */
 
 void wrapper_g2_init(wrapper_g2_t* g2) {
-  RLC_TRY {
-    g2_null(*g2);
-    g2_new(*g2);
-  }
-  RLC_CATCH_ANY {
-    g2_free(*g2);
-    assert(false);
-  }
+  memset(g2, 0, sizeof(*g2));
 }
 
 void wrapper_g2_neutral(wrapper_g2_t* g2) {
@@ -602,14 +588,7 @@ bool wrapper_g2_is_equal(const wrapper_g2_t* lhs, const wrapper_g2_t* rhs) {
 /* --- gt --- */
 
 void wrapper_gt_init(wrapper_gt_t* gt) {
-  RLC_TRY {
-    gt_null(*gt);
-    gt_new(*gt);
-  }
-  RLC_CATCH_ANY {
-    gt_free(*gt);
-    assert(false);
-  }
+  memset(gt, 0, sizeof(*gt));
 }
 
 void wrapper_gt_neutral(wrapper_gt_t* gt) {
