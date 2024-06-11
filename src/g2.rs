@@ -17,7 +17,7 @@ use generic_array::{
     GenericArray,
 };
 #[cfg(feature = "alloc")]
-use librelic_sys::{wrapper_bn_t, wrapper_g2_simmul};
+use librelic_sys::wrapper_g2_simmul;
 use librelic_sys::{
     wrapper_g2_add, wrapper_g2_add_assign, wrapper_g2_double, wrapper_g2_generator,
     wrapper_g2_hash_to_curve, wrapper_g2_init, wrapper_g2_is_equal, wrapper_g2_is_neutral,
@@ -69,6 +69,12 @@ impl G2Projective {
             wrapper_g2_hash_to_curve(&mut g2, msg.as_ptr(), msg.len(), dst.as_ptr(), dst.len());
         }
         g2.into()
+    }
+}
+
+impl AsRef<G2Projective> for G2Projective {
+    fn as_ref(&self) -> &G2Projective {
+        self
     }
 }
 
@@ -557,15 +563,17 @@ impl PrimeGroup for G2Projective {}
 #[cfg(feature = "alloc")]
 impl<G, S> Sum<(G, S)> for G2Projective
 where
-    G: Into<wrapper_g2_t>,
-    S: Into<wrapper_bn_t>,
+    G: AsRef<G2Projective>,
+    S: AsRef<Scalar>,
 {
     fn sum<I: Iterator<Item = (G, S)>>(iter: I) -> Self {
-        let mut g2s = Vec::default();
-        let mut scalars = Vec::default();
+        let size = iter.size_hint().0;
+
+        let mut g2s = Vec::with_capacity(size);
+        let mut scalars = Vec::with_capacity(size);
         iter.for_each(|(g2, scalar)| {
-            g2s.push(g2.into());
-            scalars.push(scalar.into());
+            g2s.push(g2.as_ref().into());
+            scalars.push(scalar.as_ref().into());
         });
 
         let mut g2 = new_wrapper();
@@ -579,15 +587,17 @@ where
 #[cfg(feature = "alloc")]
 impl<'a, G, S> Sum<&'a (G, S)> for G2Projective
 where
-    &'a G: Into<wrapper_g2_t>,
-    &'a S: Into<wrapper_bn_t>,
+    &'a G: AsRef<G2Projective>,
+    &'a S: AsRef<Scalar>,
 {
     fn sum<I: Iterator<Item = &'a (G, S)>>(iter: I) -> Self {
-        let mut g2s = Vec::default();
-        let mut scalars = Vec::default();
+        let size = iter.size_hint().0;
+
+        let mut g2s = Vec::with_capacity(size);
+        let mut scalars = Vec::with_capacity(size);
         iter.for_each(|(g2, scalar)| {
-            g2s.push(g2.into());
-            scalars.push(scalar.into());
+            g2s.push(g2.as_ref().into());
+            scalars.push(scalar.as_ref().into());
         });
 
         let mut g2 = new_wrapper();

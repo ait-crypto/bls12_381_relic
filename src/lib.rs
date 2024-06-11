@@ -1,6 +1,19 @@
 //! BLS12-381 from relic
 //!
-//! This crate provides a `pairing`-compatible wrapper for BLS12-381 provided by relic.
+//! This crate provides a `pairing`-compatible wrapper for BLS12-381 provided as
+//! by relic.
+//!
+//! ```
+//! use relic_rs::{G1Projective, G2Projective, Scalar, pairing};
+//! use relic_rs::exports::{group::Group, ff::Field};
+//!
+//! let base = G1Projective::hash_to_curve(b"my message", b"public parameters");
+//! let secret = Scalar::random(rand::thread_rng());
+//! let pk = G2Projective::generator() * secret;
+//!
+//! let sigma = base * secret;
+//! assert_eq!(pairing(sigma, G2Projective::generator()), pairing(base, pk));
+//! ```
 
 #![cfg_attr(all(not(feature = "std"), not(test)), no_std)]
 #![warn(missing_docs)]
@@ -21,6 +34,8 @@ pub mod exports {
 }
 
 pub(crate) use affine::Affine;
+#[cfg(feature = "alloc")]
+pub use engine::multi_pairing;
 pub use engine::{pairing, RelicEngine};
 pub use g1::{G1Affine, G1Projective};
 pub use g2::{G2Affine, G2Projective};

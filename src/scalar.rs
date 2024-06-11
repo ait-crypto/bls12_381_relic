@@ -86,6 +86,12 @@ impl Scalar {
     }
 }
 
+impl AsRef<Scalar> for Scalar {
+    fn as_ref(&self) -> &Scalar {
+        self
+    }
+}
+
 impl Default for Scalar {
     fn default() -> Self {
         Scalar::ZERO

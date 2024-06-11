@@ -76,6 +76,19 @@ impl RelicEngine {
 }
 
 /// Compute pairing of a point in `G1` and one in `G2`
+///
+/// `G1` can be elements from [G1Projective] or [G1Affine] (or references) and
+/// `G2` can be elements from [G2Projective] or [G2Affine] (or references).
+///
+/// ```
+/// use relic_rs::{G1Affine, G2Affine, G1Projective, G2Projective, pairing};
+/// use relic_rs::exports::group::Group;
+///
+/// let g1 = G1Projective::generator();
+/// let g2 = G2Projective::generator();
+///
+/// assert_eq!(pairing(g1, g2), pairing(G1Affine::from(&g1), G2Affine::from(&g2)));
+/// ```
 #[inline]
 pub fn pairing<G1, G2>(p: G1, q: G2) -> Gt
 where
@@ -133,9 +146,47 @@ impl MultiMillerLoop for RelicEngine {
 impl MillerLoopResult for Gt {
     type Gt = Gt;
 
+    #[inline]
     fn final_exponentiation(&self) -> Self::Gt {
         *self
     }
+}
+
+/// Compute sum of multiple pairings
+///
+/// ```
+/// use relic_rs::{G1Affine, G2Affine, G1Projective, G2Projective, pairing, Scalar, multi_pairing};
+/// use relic_rs::exports::group::Group;
+///
+/// let g1 = G1Projective::generator();
+/// let g2 = G2Projective::generator();
+///
+/// let elements = [(g1, g2), (g1 * Scalar::from(2), g2 * Scalar::from(7))];
+///
+/// assert_eq!(pairing(elements[0].0, elements[0].1) + pairing(elements[1].0, elements[1].1), multi_pairing(elements));
+/// ```
+#[cfg(feature = "alloc")]
+pub fn multi_pairing<I, G1, G2>(iter: I) -> Gt
+where
+    I: IntoIterator<Item = (G1, G2)>,
+    G1: AsRef<G1Projective>,
+    G2: AsRef<G2Projective>,
+{
+    let iter = iter.into_iter();
+    let iter_len = iter.size_hint().0;
+
+    let mut g1s = Vec::with_capacity(iter_len);
+    let mut g2s = Vec::with_capacity(iter_len);
+    iter.for_each(|(g1, g2)| {
+        g1s.push(g1.as_ref().into());
+        g2s.push(g2.as_ref().into());
+    });
+
+    let mut gt = new_wrapper();
+    unsafe {
+        wrapper_pc_map_sim(&mut gt, g1s.as_ptr(), g2s.as_ptr(), g1s.len());
+    }
+    gt.into()
 }
 
 #[cfg(test)]
@@ -147,9 +198,33 @@ mod test {
     #[test]
     fn pair() {
         let mut rng = rand::thread_rng();
-        let g1: G1Affine = G1Projective::random(&mut rng).into();
-        let g2: G2Affine = G2Projective::random(&mut rng).into();
+        let g1 = G1Affine::from(G1Projective::random(&mut rng));
+        let g2 = G2Affine::from(G2Projective::random(&mut rng));
 
         assert_eq!(g1.pairing_with(&g2), g2.pairing_with(&g1));
+    }
+
+    #[cfg(feature = "alloc")]
+    #[test]
+    fn multi_pair() {
+        let mut rng = rand::thread_rng();
+        let elements = [
+            (
+                G1Projective::random(&mut rng),
+                G2Projective::random(&mut rng),
+            ),
+            (
+                G1Projective::random(&mut rng),
+                G2Projective::random(&mut rng),
+            ),
+        ];
+
+        let check = pairing(elements[0].0, elements[0].1) + pairing(elements[1].0, elements[1].1);
+        let pp = multi_pairing(elements);
+        assert_eq!(check, pp);
+
+        let elements = elements.map(|(g1, g2)| (G1Affine::from(g1), G2Affine::from(g2)));
+        let pp = multi_pairing(elements);
+        assert_eq!(check, pp);
     }
 }

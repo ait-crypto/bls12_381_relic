@@ -38,6 +38,12 @@ pub(crate) fn new_wrapper() -> wrapper_gt_t {
 #[allow(clippy::large_enum_variant)]
 pub struct Gt(pub(crate) wrapper_gt_t);
 
+impl AsRef<Gt> for Gt {
+    fn as_ref(&self) -> &Gt {
+        self
+    }
+}
+
 impl Default for Gt {
     fn default() -> Self {
         let mut value = new_wrapper();

@@ -17,7 +17,7 @@ use generic_array::{
     GenericArray,
 };
 #[cfg(feature = "alloc")]
-use librelic_sys::{wrapper_bn_t, wrapper_g1_simmul};
+use librelic_sys::wrapper_g1_simmul;
 use librelic_sys::{
     wrapper_g1_add, wrapper_g1_add_assign, wrapper_g1_double, wrapper_g1_generator,
     wrapper_g1_hash_to_curve, wrapper_g1_init, wrapper_g1_is_equal, wrapper_g1_is_neutral,
@@ -70,6 +70,12 @@ impl Default for G1Projective {
             wrapper_g1_neutral(&mut value);
         }
         Self(value)
+    }
+}
+
+impl AsRef<G1Projective> for G1Projective {
+    fn as_ref(&self) -> &G1Projective {
+        self
     }
 }
 
@@ -559,15 +565,17 @@ impl PrimeGroup for G1Projective {}
 #[cfg(feature = "alloc")]
 impl<G, S> Sum<(G, S)> for G1Projective
 where
-    G: Into<wrapper_g1_t>,
-    S: Into<wrapper_bn_t>,
+    G: AsRef<G1Projective>,
+    S: AsRef<Scalar>,
 {
     fn sum<I: Iterator<Item = (G, S)>>(iter: I) -> Self {
-        let mut g1s = Vec::default();
-        let mut scalars = Vec::default();
+        let size = iter.size_hint().0;
+
+        let mut g1s = Vec::with_capacity(size);
+        let mut scalars = Vec::with_capacity(size);
         iter.for_each(|(g1, scalar)| {
-            g1s.push(g1.into());
-            scalars.push(scalar.into());
+            g1s.push(g1.as_ref().into());
+            scalars.push(scalar.as_ref().into());
         });
 
         let mut g1 = new_wrapper();
@@ -581,15 +589,17 @@ where
 #[cfg(feature = "alloc")]
 impl<'a, G, S> Sum<&'a (G, S)> for G1Projective
 where
-    &'a G: Into<wrapper_g1_t>,
-    &'a S: Into<wrapper_bn_t>,
+    &'a G: AsRef<G1Projective>,
+    &'a S: AsRef<Scalar>,
 {
     fn sum<I: Iterator<Item = &'a (G, S)>>(iter: I) -> Self {
-        let mut g1s = Vec::default();
-        let mut scalars = Vec::default();
+        let size = iter.size_hint().0;
+
+        let mut g1s = Vec::with_capacity(size);
+        let mut scalars = Vec::with_capacity(size);
         iter.for_each(|(g1, scalar)| {
-            g1s.push(g1.into());
-            scalars.push(scalar.into());
+            g1s.push(g1.as_ref().into());
+            scalars.push(scalar.as_ref().into());
         });
 
         let mut g1 = new_wrapper();
