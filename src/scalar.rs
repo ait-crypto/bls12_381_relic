@@ -70,7 +70,7 @@ impl Scalar {
 
     /// Encode scalar as bytes
     pub fn to_bytes(&self) -> [u8; 32] {
-        From::from(self)
+        self.into()
     }
 
     /// Decode scalar from bytes
@@ -82,7 +82,7 @@ impl Scalar {
     pub fn from_bytes_wide(bytes: &[u8; 64]) -> Self {
         let mut bn = new_wrapper();
         unsafe { wrapper_bn_read_bin(&mut bn, bytes.as_ptr(), bytes.len(), true) };
-        Self::Relic(bn)
+        bn.into()
     }
 }
 
@@ -99,24 +99,28 @@ impl Default for Scalar {
 }
 
 impl From<wrapper_bn_t> for Scalar {
+    #[inline(always)]
     fn from(value: wrapper_bn_t) -> Self {
         Scalar::Relic(value)
     }
 }
 
 impl From<&wrapper_bn_t> for Scalar {
+    #[inline(always)]
     fn from(value: &wrapper_bn_t) -> Self {
         Scalar::Relic(*value)
     }
 }
 
 impl From<[u8; 32]> for Scalar {
+    #[inline(always)]
     fn from(value: [u8; 32]) -> Self {
         Scalar::Bytes(value)
     }
 }
 
 impl From<&[u8; 32]> for Scalar {
+    #[inline(always)]
     fn from(value: &[u8; 32]) -> Self {
         Scalar::Bytes(*value)
     }
@@ -183,6 +187,7 @@ impl From<&Scalar> for [u8; 32] {
 }
 
 impl From<u64> for Scalar {
+    #[inline(always)]
     fn from(value: u64) -> Self {
         Self::from_u64(value)
     }
@@ -210,7 +215,7 @@ impl Add for Scalar {
         unsafe {
             wrapper_bn_add_assign(&mut lhs, &rhs.into());
         }
-        Scalar::Relic(lhs)
+        lhs.into()
     }
 }
 
@@ -230,7 +235,7 @@ impl Add<&Scalar> for Scalar {
                 }
             }
         }
-        Scalar::Relic(lhs)
+        lhs.into()
     }
 }
 
@@ -269,7 +274,7 @@ impl Add for &Scalar {
                 lhs
             }
         };
-        Scalar::Relic(ret)
+        ret.into()
     }
 }
 
@@ -344,7 +349,7 @@ impl Neg for Scalar {
         unsafe {
             wrapper_bn_neg(&mut bn);
         }
-        Scalar::Relic(bn)
+        bn.into()
     }
 }
 
@@ -356,7 +361,7 @@ impl Sub for Scalar {
         unsafe {
             wrapper_bn_sub_assign(&mut lhs, &rhs.into());
         }
-        Scalar::Relic(lhs)
+        lhs.into()
     }
 }
 
@@ -376,7 +381,7 @@ impl Sub<&Scalar> for Scalar {
                 }
             }
         }
-        Scalar::Relic(lhs)
+        lhs.into()
     }
 }
 
@@ -396,7 +401,7 @@ impl Sub for &Scalar {
                 }
             }
         }
-        Scalar::Relic(lhs)
+        lhs.into()
     }
 }
 
@@ -409,7 +414,7 @@ impl Sub<Scalar> for &Scalar {
         unsafe {
             wrapper_bn_sub_assign(&mut lhs, &rhs);
         }
-        Scalar::Relic(lhs)
+        lhs.into()
     }
 }
 
@@ -476,7 +481,7 @@ impl Mul for Scalar {
         unsafe {
             wrapper_bn_mul_assign(&mut lhs, &rhs.into());
         }
-        Scalar::Relic(lhs)
+        lhs.into()
     }
 }
 
@@ -496,7 +501,7 @@ impl Mul<&Scalar> for Scalar {
                 }
             }
         }
-        Scalar::Relic(lhs)
+        lhs.into()
     }
 }
 
@@ -535,7 +540,7 @@ impl Mul for &Scalar {
                 lhs
             }
         };
-        Scalar::Relic(ret)
+        ret.into()
     }
 }
 
@@ -777,7 +782,7 @@ impl Field for Scalar {
             }
         };
 
-        Scalar::Relic(value)
+        value.into()
     }
 
     fn invert(&self) -> CtOption<Self> {
