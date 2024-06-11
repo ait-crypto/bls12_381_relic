@@ -27,3 +27,6 @@ zeroize = ["dep:zeroize"]
 # from librelic-sys
 system = ["librelic-sys/system"]
 vendored = ["librelic-sys/vendored"]
+
+[workspace]
+members = ["librelic-sys"]
