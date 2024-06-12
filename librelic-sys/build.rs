@@ -89,7 +89,7 @@ fn main() {
         .allowlist_item("ep_.*")
         .allowlist_item("core_.*")
         .allowlist_item("fp_.*")
-        .allowlist_item("fp.._.*")
+        .allowlist_item("fp1._.*")
         .allowlist_item("fp._.*")
         .allowlist_item("pc_.*")
         .allowlist_item("g._.*")
