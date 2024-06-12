@@ -560,12 +560,12 @@ impl Group for G2Projective {
 
 impl PrimeGroup for G2Projective {}
 
-#[cfg(feature = "alloc")]
 impl<G, S> Sum<(G, S)> for G2Projective
 where
     G: AsRef<G2Projective>,
     S: AsRef<Scalar>,
 {
+    #[cfg(feature = "alloc")]
     fn sum<I: Iterator<Item = (G, S)>>(iter: I) -> Self {
         let size = iter.size_hint().0;
 
@@ -582,15 +582,21 @@ where
         }
         g2.into()
     }
+
+    #[cfg(not(feature = "alloc"))]
+    fn sum<I: Iterator<Item = (G, S)>>(iter: I) -> Self {
+        iter.fold(Self::identity(), |a, (g, s)| a + g.as_ref() * s.as_ref())
+    }
 }
 
-#[cfg(feature = "alloc")]
 impl<'a, G, S> Sum<&'a (G, S)> for G2Projective
 where
     &'a G: AsRef<G2Projective>,
     &'a S: AsRef<Scalar>,
 {
+    #[cfg(feature = "alloc")]
     fn sum<I: Iterator<Item = &'a (G, S)>>(iter: I) -> Self {
+        #[cfg(feature = "alloc")]
         let size = iter.size_hint().0;
 
         let mut g2s = Vec::with_capacity(size);
@@ -605,6 +611,11 @@ where
             wrapper_g2_simmul(&mut g2, g2s.as_ptr(), scalars.as_ptr(), g2s.len());
         }
         g2.into()
+    }
+
+    #[cfg(not(feature = "alloc"))]
+    fn sum<I: Iterator<Item = &'a (G, S)>>(iter: I) -> Self {
+        iter.fold(Self::identity(), |a, (g, s)| a + g.as_ref() * s.as_ref())
     }
 }
 
@@ -777,7 +788,6 @@ impl zeroize::Zeroize for G2Projective {
 
 #[cfg(test)]
 mod test {
-    #[cfg(eature = "alloc")]
     use pairing::group::ff::Field;
 
     use super::*;
@@ -797,7 +807,6 @@ mod test {
         assert_eq!(v1 + v2, v2 + v1);
     }
 
-    #[cfg(eature = "alloc")]
     #[test]
     fn simmul() {
         let mut rng = rand::thread_rng();
@@ -807,14 +816,11 @@ mod test {
         let s2 = Scalar::random(&mut rng);
         let check = v1 * s1 + v2 * s2;
 
-        assert_eq!([(v1, s1), (v2, s2)].iter().sum::<G2Projective>(), check);
+        assert_eq!(G2Projective::sum([(v1, s1), (v2, s2)].iter()), check);
         assert_eq!(
-            [(&v1, &s1), (&v2, &s2)].into_iter().sum::<G2Projective>(),
+            G2Projective::sum([(&v1, &s1), (&v2, &s2)].into_iter()),
             check
         );
-        assert_eq!(
-            [(v1, s1), (v2, s2)].into_iter().sum::<G2Projective>(),
-            check
-        );
+        assert_eq!(G2Projective::sum([(v1, s1), (v2, s2)].into_iter()), check);
     }
 }
