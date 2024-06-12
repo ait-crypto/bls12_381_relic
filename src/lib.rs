@@ -15,6 +15,15 @@
 //! assert_eq!(pair(sigma, G2Projective::generator()), pair(base, pk));
 //! ```
 //!
+//! The goal is to be as compatible with the interface defined by [pairing] and
+//! implemented by [bls12_381] crate as possible. There are however some notable
+//! differences where concepts of [pairing] have no mapping in [relic]. Some
+//! examples of the differences include:
+//! * [G1Affine] and [G2Affine] are thin wrappers of their projective
+//!   counterparts since [relic] does not have separate types for affine
+//!   representations and associated functions.
+//! * There is no "prepared" variant of elements in `G2` for multi-miller-loops.
+//!
 //! ## Additional features
 //!
 //! The crate provides multi-product sums for pairs of group elements and
@@ -49,6 +58,7 @@
 //! referred to as pairing sums or sums of pairings.
 //!
 //! [relic]: https://github.com/relic-toolkit/relic
+//! [bls12_381]: https://crates.io/crates/bls12_381
 
 #![cfg_attr(all(not(feature = "std"), not(test)), no_std)]
 #![warn(missing_docs)]
