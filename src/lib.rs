@@ -33,7 +33,10 @@
 //! let s1 = Scalar::random(&mut rng);
 //! let s2 = Scalar::random(&mut rng);
 //! let s3 = Scalar::random(&mut rng);
-//! assert_eq!(G1Projective::sum([(v1, s1), (v2, s2), (v3, s3)].iter()), v1 * s1 + v2 * s2 + v3 * s3);
+//! assert_eq!(
+//!     G1Projective::sum([(v1, s1), (v2, s2), (v3, s3)].iter()),
+//!     v1 * s1 + v2 * s2 + v3 * s3
+//! );
 //! ```
 //!
 //! This speed-up is only available if the `alloc` feature is enabled.
@@ -82,7 +85,7 @@ pub use scalar::Scalar;
 #[cfg_attr(feature = "std", derive(thiserror::Error))]
 pub enum Error {
     /// Relic failure
-    #[cfg_attr(feature = "std", error("Relic failure: {0}"))]
+    #[cfg_attr(feature = "std", error("Error from relic: {0}"))]
     RelicError(i32),
     /// Invalid byte representation of group elements or scalars
     #[cfg_attr(feature = "std", error("Invalid representation as bytes."))]
@@ -123,7 +126,10 @@ where
 ///
 /// let elements = [(g1, g2), (g1 * Scalar::from(2), g2 * Scalar::from(7))];
 ///
-/// assert_eq!(pair(elements[0].0, elements[0].1) + pair(elements[1].0, elements[1].1), pairing_sum(elements));
+/// assert_eq!(
+///     pair(elements[0].0, elements[0].1) + pair(elements[1].0, elements[1].1),
+///     pairing_sum(elements)
+/// );
 /// ```
 pub fn pairing_sum<I, G1, G2>(iter: I) -> Gt
 where
