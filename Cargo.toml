@@ -1,5 +1,5 @@
 [package]
-name = "relic-rs"
+name = "bls12_381_relic"
 version = "0.1.0"
 edition = "2021"
 

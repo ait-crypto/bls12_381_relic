@@ -4,8 +4,8 @@
 //! by relic.
 //!
 //! ```
-//! use relic_rs::{G1Projective, G2Projective, Scalar, pair};
-//! use relic_rs::{group::Group, ff::Field};
+//! use bls12_381_relic::{G1Projective, G2Projective, Scalar, pair};
+//! use bls12_381_relic::{group::Group, ff::Field};
 //!
 //! let base = G1Projective::hash_to_curve(b"my message", b"public parameters");
 //! let secret = Scalar::random(rand::thread_rng());
@@ -31,8 +31,8 @@
 //! additions separately.
 //!
 //! ```
-//! use relic_rs::{G1Projective, Scalar};
-//! use relic_rs::{group::Group, ff::Field};
+//! use bls12_381_relic::{G1Projective, Scalar};
+//! use bls12_381_relic::{group::Group, ff::Field};
 //! use core::iter::Sum;
 //!
 //! let mut rng = rand::thread_rng();
@@ -90,7 +90,7 @@ pub use scalar::Scalar;
 
 /// Error type
 ///
-/// This enum covers all errors that are produced by the crate.
+/// This enum covers all errors that are produced by this crate.
 #[derive(Debug)]
 #[cfg_attr(feature = "std", derive(thiserror::Error))]
 pub enum Error {
@@ -108,8 +108,8 @@ pub enum Error {
 /// `G2` can be elements from [G2Projective] or [G2Affine] (or references).
 ///
 /// ```
-/// use relic_rs::{G1Affine, G2Affine, G1Projective, G2Projective, pair};
-/// use relic_rs::group::Group;
+/// use bls12_381_relic::{G1Affine, G2Affine, G1Projective, G2Projective, pair};
+/// use bls12_381_relic::group::Group;
 ///
 /// let g1 = G1Projective::generator();
 /// let g2 = G2Projective::generator();
@@ -128,8 +128,8 @@ where
 /// Compute sum of multiple pairings
 ///
 /// ```
-/// use relic_rs::{G1Affine, G2Affine, G1Projective, G2Projective, pair, Scalar, pairing_sum};
-/// use relic_rs::group::Group;
+/// use bls12_381_relic::{G1Affine, G2Affine, G1Projective, G2Projective, pair, Scalar, pairing_sum};
+/// use bls12_381_relic::group::Group;
 ///
 /// let g1 = G1Projective::generator();
 /// let g2 = G2Projective::generator();
