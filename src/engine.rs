@@ -17,13 +17,19 @@ use alloc::vec::Vec;
 use librelic_sys::wrapper_pc_map;
 #[cfg(feature = "alloc")]
 use librelic_sys::wrapper_pc_map_sim;
-use pairing::{Engine, PairingCurveAffine};
-#[cfg(feature = "alloc")]
-use pairing::{MillerLoopResult, MultiMillerLoop};
+#[cfg(not(feature = "alloc"))]
+use pairing::group::Group;
+use pairing::{Engine, MillerLoopResult, MultiMillerLoop, PairingCurveAffine};
 
 use crate::{gt::new_wrapper, G1Affine, G1Projective, G2Affine, G2Projective, Gt, Scalar};
 
 /// Relic-based [Engine]
+///
+/// The only purpose of this struct is to implement the [Engine] to use with
+/// relic's implementation of the pairing-friendly BLS12-381 curve.
+/// Additionally, it also provides the multi-Miller-loop ([MultiMillerLoop])
+/// functionality whereas the speed-up is only provided if the `alloc` feature
+/// is enabled.`
 #[derive(Debug, Clone)]
 pub struct RelicEngine;
 
@@ -58,44 +64,30 @@ impl RelicEngine {
     }
 
     /// Compute multiple pairings and their sum
-    #[cfg(feature = "alloc")]
     pub fn projective_multi_miller_loop(terms: &[(&G1Projective, &G2Projective)]) -> Gt {
-        let mut g1s = Vec::with_capacity(terms.len());
-        let mut g2s = Vec::with_capacity(terms.len());
-        terms.iter().for_each(|(g1, g2)| {
-            g1s.push((*g1).into());
-            g2s.push((*g2).into());
-        });
+        #[cfg(feature = "alloc")]
+        {
+            let mut g1s = Vec::with_capacity(terms.len());
+            let mut g2s = Vec::with_capacity(terms.len());
+            terms.iter().for_each(|(g1, g2)| {
+                g1s.push((*g1).into());
+                g2s.push((*g2).into());
+            });
 
-        let mut gt = new_wrapper();
-        unsafe {
-            wrapper_pc_map_sim(&mut gt, g1s.as_ptr(), g2s.as_ptr(), terms.len());
+            let mut gt = new_wrapper();
+            unsafe {
+                wrapper_pc_map_sim(&mut gt, g1s.as_ptr(), g2s.as_ptr(), terms.len());
+            }
+            gt.into()
         }
-        gt.into()
-    }
-}
 
-/// Compute pairing of a point in `G1` and one in `G2`
-///
-/// `G1` can be elements from [G1Projective] or [G1Affine] (or references) and
-/// `G2` can be elements from [G2Projective] or [G2Affine] (or references).
-///
-/// ```
-/// use relic_rs::{G1Affine, G2Affine, G1Projective, G2Projective, pairing};
-/// use relic_rs::exports::group::Group;
-///
-/// let g1 = G1Projective::generator();
-/// let g2 = G2Projective::generator();
-///
-/// assert_eq!(pairing(g1, g2), pairing(G1Affine::from(&g1), G2Affine::from(&g2)));
-/// ```
-#[inline]
-pub fn pairing<G1, G2>(p: G1, q: G2) -> Gt
-where
-    G1: AsRef<G1Projective>,
-    G2: AsRef<G2Projective>,
-{
-    RelicEngine::projective_pairing(p.as_ref(), q.as_ref())
+        #[cfg(not(feature = "alloc"))]
+        {
+            terms.iter().fold(Gt::identity(), |a, (g1, g2)| {
+                a + Self::projective_pairing(g1, g2)
+            })
+        }
+    }
 }
 
 impl PairingCurveAffine for G1Affine {
@@ -120,12 +112,13 @@ impl PairingCurveAffine for G2Affine {
     }
 }
 
-#[cfg(feature = "alloc")]
 impl MultiMillerLoop for RelicEngine {
+    // there is no prepared version
     type G2Prepared = G2Affine;
 
     type Result = Gt;
 
+    #[cfg(feature = "alloc")]
     fn multi_miller_loop(terms: &[(&Self::G1Affine, &Self::G2Prepared)]) -> Self::Result {
         let mut g1s = Vec::with_capacity(terms.len());
         let mut g2s = Vec::with_capacity(terms.len());
@@ -140,9 +133,15 @@ impl MultiMillerLoop for RelicEngine {
         }
         gt.into()
     }
+
+    #[cfg(not(feature = "alloc"))]
+    fn multi_miller_loop(terms: &[(&Self::G1Affine, &Self::G2Prepared)]) -> Self::Result {
+        terms
+            .iter()
+            .fold(Gt::identity(), |a, (g1, g2)| a + super::pair(*g1, *g2))
+    }
 }
 
-#[cfg(feature = "alloc")]
 impl MillerLoopResult for Gt {
     type Gt = Gt;
 
@@ -152,79 +151,50 @@ impl MillerLoopResult for Gt {
     }
 }
 
-/// Compute sum of multiple pairings
-///
-/// ```
-/// use relic_rs::{G1Affine, G2Affine, G1Projective, G2Projective, pairing, Scalar, multi_pairing};
-/// use relic_rs::exports::group::Group;
-///
-/// let g1 = G1Projective::generator();
-/// let g2 = G2Projective::generator();
-///
-/// let elements = [(g1, g2), (g1 * Scalar::from(2), g2 * Scalar::from(7))];
-///
-/// assert_eq!(pairing(elements[0].0, elements[0].1) + pairing(elements[1].0, elements[1].1), multi_pairing(elements));
-/// ```
-#[cfg(feature = "alloc")]
-pub fn multi_pairing<I, G1, G2>(iter: I) -> Gt
-where
-    I: IntoIterator<Item = (G1, G2)>,
-    G1: AsRef<G1Projective>,
-    G2: AsRef<G2Projective>,
-{
-    let iter = iter.into_iter();
-    let iter_len = iter.size_hint().0;
-
-    let mut g1s = Vec::with_capacity(iter_len);
-    let mut g2s = Vec::with_capacity(iter_len);
-    iter.for_each(|(g1, g2)| {
-        g1s.push(g1.as_ref().into());
-        g2s.push(g2.as_ref().into());
-    });
-
-    let mut gt = new_wrapper();
-    unsafe {
-        wrapper_pc_map_sim(&mut gt, g1s.as_ptr(), g2s.as_ptr(), g1s.len());
-    }
-    gt.into()
-}
-
 #[cfg(test)]
 mod test {
-    use pairing::group::Group;
+    use crate::{group::Group, pairing_sum};
 
     use super::*;
 
     #[test]
-    fn pair() {
+    fn projective_pairing() {
+        let mut rng = rand::thread_rng();
+        let g1 = G1Projective::random(&mut rng);
+        let g2 = G2Projective::random(&mut rng);
+
+        assert_eq!(
+            RelicEngine::projective_pairing(&g1, &g2),
+            RelicEngine::pairing(&G1Affine::from(g1), &G2Affine::from(g2))
+        );
+    }
+
+    #[test]
+    fn pair_with() {
         let mut rng = rand::thread_rng();
         let g1 = G1Affine::from(G1Projective::random(&mut rng));
         let g2 = G2Affine::from(G2Projective::random(&mut rng));
 
         assert_eq!(g1.pairing_with(&g2), g2.pairing_with(&g1));
+        assert_eq!(RelicEngine::pairing(&g1, &g2), g2.pairing_with(&g1));
     }
 
-    #[cfg(feature = "alloc")]
     #[test]
-    fn multi_pair() {
+    fn multi_miller_loop() {
         let mut rng = rand::thread_rng();
-        let elements = [
-            (
-                G1Projective::random(&mut rng),
-                G2Projective::random(&mut rng),
-            ),
-            (
-                G1Projective::random(&mut rng),
-                G2Projective::random(&mut rng),
-            ),
+        let g1s = [
+            G1Affine::from(G1Projective::random(&mut rng)),
+            G1Affine::from(G1Projective::random(&mut rng)),
         ];
+        let g2s = [
+            G2Affine::from(G2Projective::random(&mut rng)),
+            G2Affine::from(G2Projective::random(&mut rng)),
+        ];
+        let terms = [(&g1s[0], &g2s[0]), (&g1s[1], &g2s[1])];
 
-        let check = pairing(elements[0].0, elements[0].1) + pairing(elements[1].0, elements[1].1);
-        let pp = multi_pairing(elements);
-        assert_eq!(check, pp);
+        let mml = RelicEngine::multi_miller_loop(&terms).final_exponentiation();
+        let check = pairing_sum(terms);
 
-        let elements = elements.map(|(g1, g2)| (G1Affine::from(g1), G2Affine::from(g2)));
-        let pp = multi_pairing(elements);
-        assert_eq!(check, pp);
+        assert_eq!(check, mml);
     }
 }
