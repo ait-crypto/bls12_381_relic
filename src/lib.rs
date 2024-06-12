@@ -172,8 +172,11 @@ mod test {
     fn pair_generators() {
         let g1 = G1Projective::generator();
         let g2 = G2Projective::generator();
+        let s = Scalar::from(127);
 
         assert_eq!(pair(g1, g2), Gt::generator());
+        assert_eq!(pair(g1 * s, g2), Gt::generator() * s);
+        assert_eq!(pair(g1, g2 * s), Gt::generator() * s);
     }
 
     #[cfg(feature = "alloc")]
