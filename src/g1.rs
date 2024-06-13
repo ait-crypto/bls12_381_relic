@@ -167,11 +167,7 @@ impl From<&G1Projective> for wrapper_g1_t {
 
 impl From<G1Projective> for [u8; UNCOMPRESSED_BYTES_SIZE] {
     fn from(value: G1Projective) -> Self {
-        let mut ret = [0u8; UNCOMPRESSED_BYTES_SIZE];
-        unsafe {
-            wrapper_g1_write_bin(ret.as_mut_ptr(), ret.len(), &value.0, false);
-        }
-        ret
+        Self::from(&value)
     }
 }
 
@@ -187,11 +183,7 @@ impl From<&G1Projective> for [u8; UNCOMPRESSED_BYTES_SIZE] {
 
 impl From<G1Projective> for [u8; COMPRESSED_BYTES_SIZE] {
     fn from(value: G1Projective) -> Self {
-        let mut ret = [0u8; COMPRESSED_BYTES_SIZE];
-        unsafe {
-            wrapper_g1_write_bin(ret.as_mut_ptr(), ret.len(), &value.0, true);
-        }
-        ret
+        Self::from(&value)
     }
 }
 

@@ -111,11 +111,7 @@ impl From<&Gt> for wrapper_gt_t {
 
 impl From<Gt> for [u8; BYTES_SIZE] {
     fn from(value: Gt) -> Self {
-        let mut ret = [0u8; BYTES_SIZE];
-        unsafe {
-            wrapper_gt_write_bin(ret.as_mut_ptr(), ret.len(), &value.0);
-        }
-        ret
+        Self::from(&value)
     }
 }
 
