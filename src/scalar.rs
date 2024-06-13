@@ -21,6 +21,7 @@ use subtle::{Choice, ConditionallySelectable, ConstantTimeEq, CtOption};
 use crate::Error;
 use rand_core::RngCore;
 
+#[inline]
 fn new_wrapper() -> wrapper_bn_t {
     let mut bn = MaybeUninit::uninit();
     unsafe {

@@ -25,6 +25,7 @@ use rand_core::RngCore;
 
 const BYTES_SIZE: usize = U576::USIZE;
 
+#[inline]
 pub(crate) fn new_wrapper() -> wrapper_gt_t {
     let mut gt = MaybeUninit::uninit();
     unsafe {

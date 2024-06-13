@@ -36,6 +36,7 @@ use rand_core::RngCore;
 
 const BYTES_SIZE: usize = U193::USIZE;
 
+#[inline]
 fn new_wrapper() -> wrapper_g2_t {
     let mut g2 = MaybeUninit::uninit();
     unsafe {

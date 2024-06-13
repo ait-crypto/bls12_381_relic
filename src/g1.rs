@@ -37,6 +37,7 @@ use crate::{Affine, Error, Scalar};
 
 const BYTES_SIZE: usize = U97::USIZE;
 
+#[inline]
 fn new_wrapper() -> wrapper_g1_t {
     let mut g1 = MaybeUninit::uninit();
     unsafe {
