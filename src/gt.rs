@@ -8,7 +8,7 @@ use core::{
 };
 
 use generic_array::{
-    typenum::{Unsigned, U576},
+    typenum::{Unsigned, U384, U576},
     GenericArray,
 };
 use librelic_sys::{
@@ -17,13 +17,17 @@ use librelic_sys::{
     wrapper_gt_mul, wrapper_gt_mul_assign, wrapper_gt_neg, wrapper_gt_neutral, wrapper_gt_rand,
     wrapper_gt_read_bin, wrapper_gt_t, wrapper_gt_write_bin, RLC_OK,
 };
-use pairing::group::{prime::PrimeGroup, Group, GroupEncoding};
+use pairing::group::{prime::PrimeGroup, Group, GroupEncoding, UncompressedEncoding};
 use subtle::{Choice, CtOption};
 
 use crate::{Error, Scalar};
 use rand_core::RngCore;
 
-const BYTES_SIZE: usize = U576::USIZE;
+type CompressedSize = U384;
+type UncompressedSize = U576;
+
+const COMPRESSED_BYTES_SIZE: usize = CompressedSize::USIZE;
+const UNCOMPRESSED_BYTES_SIZE: usize = UncompressedSize::USIZE;
 
 #[inline]
 pub(crate) fn new_wrapper() -> wrapper_gt_t {
@@ -68,19 +72,46 @@ impl From<&wrapper_gt_t> for Gt {
     }
 }
 
-impl TryFrom<[u8; BYTES_SIZE]> for Gt {
+impl TryFrom<[u8; UNCOMPRESSED_BYTES_SIZE]> for Gt {
     type Error = Error;
 
     #[inline]
-    fn try_from(value: [u8; BYTES_SIZE]) -> Result<Self, Self::Error> {
+    fn try_from(value: [u8; UNCOMPRESSED_BYTES_SIZE]) -> Result<Self, Self::Error> {
         Self::try_from(&value)
     }
 }
 
-impl TryFrom<&[u8; BYTES_SIZE]> for Gt {
+impl TryFrom<&[u8; UNCOMPRESSED_BYTES_SIZE]> for Gt {
     type Error = Error;
 
-    fn try_from(value: &[u8; BYTES_SIZE]) -> Result<Self, Self::Error> {
+    fn try_from(value: &[u8; UNCOMPRESSED_BYTES_SIZE]) -> Result<Self, Self::Error> {
+        let mut gt = new_wrapper();
+        let ret = unsafe { wrapper_gt_read_bin(&mut gt, value.as_ptr(), value.len()) };
+        if ret == RLC_OK {
+            if unsafe { wrapper_gt_is_valid(&gt) } {
+                Ok(Self(gt))
+            } else {
+                Err(Error::InvalidBytesRepresentation)
+            }
+        } else {
+            Err(Error::RelicError(ret))
+        }
+    }
+}
+
+impl TryFrom<[u8; COMPRESSED_BYTES_SIZE]> for Gt {
+    type Error = Error;
+
+    #[inline]
+    fn try_from(value: [u8; COMPRESSED_BYTES_SIZE]) -> Result<Self, Self::Error> {
+        Self::try_from(&value)
+    }
+}
+
+impl TryFrom<&[u8; COMPRESSED_BYTES_SIZE]> for Gt {
+    type Error = Error;
+
+    fn try_from(value: &[u8; COMPRESSED_BYTES_SIZE]) -> Result<Self, Self::Error> {
         let mut gt = new_wrapper();
         let ret = unsafe { wrapper_gt_read_bin(&mut gt, value.as_ptr(), value.len()) };
         if ret == RLC_OK {
@@ -109,17 +140,33 @@ impl From<&Gt> for wrapper_gt_t {
     }
 }
 
-impl From<Gt> for [u8; BYTES_SIZE] {
+impl From<Gt> for [u8; UNCOMPRESSED_BYTES_SIZE] {
     fn from(value: Gt) -> Self {
         Self::from(&value)
     }
 }
 
-impl From<&Gt> for [u8; BYTES_SIZE] {
+impl From<&Gt> for [u8; UNCOMPRESSED_BYTES_SIZE] {
     fn from(value: &Gt) -> Self {
-        let mut ret = [0u8; BYTES_SIZE];
+        let mut ret = [0u8; UNCOMPRESSED_BYTES_SIZE];
         unsafe {
-            wrapper_gt_write_bin(ret.as_mut_ptr(), ret.len(), &value.0);
+            wrapper_gt_write_bin(ret.as_mut_ptr(), ret.len(), &value.0, false);
+        }
+        ret
+    }
+}
+
+impl From<Gt> for [u8; COMPRESSED_BYTES_SIZE] {
+    fn from(value: Gt) -> Self {
+        Self::from(&value)
+    }
+}
+
+impl From<&Gt> for [u8; COMPRESSED_BYTES_SIZE] {
+    fn from(value: &Gt) -> Self {
+        let mut ret = [0u8; COMPRESSED_BYTES_SIZE];
+        unsafe {
+            wrapper_gt_write_bin(ret.as_mut_ptr(), ret.len(), &value.0, true);
         }
         ret
     }
@@ -410,14 +457,13 @@ impl Eq for Gt {}
 
 impl fmt::Debug for Gt {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let bytes: [u8; BYTES_SIZE] = self.into();
+        let bytes: [u8; UNCOMPRESSED_BYTES_SIZE] = self.into();
         f.debug_tuple("Relic").field(&bytes).finish()
     }
 }
 
 impl GroupEncoding for Gt {
-    // FIXME: use [u8; 576]
-    type Repr = GenericArray<u8, U576>;
+    type Repr = GenericArray<u8, CompressedSize>;
 
     fn from_bytes(bytes: &Self::Repr) -> CtOption<Self> {
         let mut wrapper = new_wrapper();
@@ -442,7 +488,36 @@ impl GroupEncoding for Gt {
 
     #[inline]
     fn to_bytes(&self) -> Self::Repr {
-        GenericArray::from_array(self.into())
+        GenericArray::from_array(<[u8; COMPRESSED_BYTES_SIZE]>::from(self))
+    }
+}
+
+impl UncompressedEncoding for Gt {
+    type Uncompressed = GenericArray<u8, UncompressedSize>;
+
+    fn from_uncompressed(bytes: &Self::Uncompressed) -> CtOption<Self> {
+        let mut wrapper = new_wrapper();
+        if unsafe { wrapper_gt_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK {
+            CtOption::new(
+                Self(wrapper),
+                Choice::from(unsafe { wrapper_gt_is_valid(&wrapper) } as u8),
+            )
+        } else {
+            CtOption::new(Self(wrapper), 0.into())
+        }
+    }
+
+    fn from_uncompressed_unchecked(bytes: &Self::Uncompressed) -> CtOption<Self> {
+        let mut wrapper = new_wrapper();
+        if unsafe { wrapper_gt_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK {
+            CtOption::new(Self(wrapper), 1.into())
+        } else {
+            CtOption::new(Self(wrapper), 0.into())
+        }
+    }
+
+    fn to_uncompressed(&self) -> Self::Uncompressed {
+        GenericArray::from_array(<[u8; UNCOMPRESSED_BYTES_SIZE]>::from(self))
     }
 }
 

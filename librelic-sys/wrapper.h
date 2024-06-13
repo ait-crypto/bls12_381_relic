@@ -84,7 +84,7 @@ void wrapper_gt_double(wrapper_gt_t* dst, const wrapper_gt_t* src);
 void wrapper_gt_neg(wrapper_gt_t* gt);
 void wrapper_gt_mul_assign(wrapper_gt_t* dst, const wrapper_bn_t* rhs);
 void wrapper_gt_mul(wrapper_gt_t* dst, const wrapper_gt_t* lhs, const wrapper_bn_t* rhs);
-void wrapper_gt_write_bin(uint8_t* dst, size_t len, const wrapper_gt_t* src);
+void wrapper_gt_write_bin(uint8_t* dst, size_t len, const wrapper_gt_t* src, bool compressed);
 int wrapper_gt_read_bin(wrapper_gt_t* dst, const uint8_t* src, size_t len);
 bool wrapper_gt_is_neutral(const wrapper_gt_t* value);
 bool wrapper_gt_is_valid(const wrapper_gt_t* value);

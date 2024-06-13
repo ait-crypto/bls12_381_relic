@@ -634,9 +634,9 @@ void wrapper_gt_mul(wrapper_gt_t* dst, const wrapper_gt_t* lhs, const wrapper_bn
   }
 }
 
-void wrapper_gt_write_bin(uint8_t* dst, size_t len, const wrapper_gt_t* src) {
+void wrapper_gt_write_bin(uint8_t* dst, size_t len, const wrapper_gt_t* src, bool compressed) {
   RLC_TRY {
-    gt_write_bin(dst, len, *src, 0);
+    gt_write_bin(dst, len, *src, compressed);
   }
   RLC_CATCH_ANY {
     assert(false);
