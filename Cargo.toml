@@ -28,5 +28,9 @@ zeroize = ["dep:zeroize"]
 system = ["librelic-sys/system"]
 vendored = ["librelic-sys/vendored"]
 
+[profile.release]
+lto = true
+opt-level = 3
+
 [workspace]
 members = ["librelic-sys"]
