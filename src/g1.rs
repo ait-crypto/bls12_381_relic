@@ -13,7 +13,7 @@ extern crate alloc;
 use alloc::vec::Vec;
 
 use generic_array::{
-    typenum::{Unsigned, U97},
+    typenum::{Unsigned, U49, U97},
     GenericArray,
 };
 #[cfg(feature = "alloc")]
@@ -28,14 +28,18 @@ use librelic_sys::{
 
 use pairing::group::{
     prime::{PrimeCurve, PrimeGroup},
-    Curve, Group, GroupEncoding,
+    Curve, Group, GroupEncoding, UncompressedEncoding,
 };
 use rand_core::RngCore;
 use subtle::{Choice, CtOption};
 
 use crate::{Affine, Error, Scalar};
 
-const BYTES_SIZE: usize = U97::USIZE;
+type CompressedSize = U49;
+type UncompressedSize = U97;
+
+const COMPRESSED_BYTES_SIZE: usize = CompressedSize::USIZE;
+const UNCOMPRESSED_BYTES_SIZE: usize = UncompressedSize::USIZE;
 
 #[inline]
 fn new_wrapper() -> wrapper_g1_t {
@@ -93,19 +97,46 @@ impl From<&wrapper_g1_t> for G1Projective {
     }
 }
 
-impl TryFrom<[u8; BYTES_SIZE]> for G1Projective {
+impl TryFrom<[u8; UNCOMPRESSED_BYTES_SIZE]> for G1Projective {
     type Error = Error;
 
     #[inline]
-    fn try_from(value: [u8; BYTES_SIZE]) -> Result<Self, Self::Error> {
+    fn try_from(value: [u8; UNCOMPRESSED_BYTES_SIZE]) -> Result<Self, Self::Error> {
         Self::try_from(&value)
     }
 }
 
-impl TryFrom<&[u8; BYTES_SIZE]> for G1Projective {
+impl TryFrom<&[u8; UNCOMPRESSED_BYTES_SIZE]> for G1Projective {
     type Error = Error;
 
-    fn try_from(value: &[u8; BYTES_SIZE]) -> Result<Self, Self::Error> {
+    fn try_from(value: &[u8; UNCOMPRESSED_BYTES_SIZE]) -> Result<Self, Self::Error> {
+        let mut g1 = new_wrapper();
+        let ret = unsafe { wrapper_g1_read_bin(&mut g1, value.as_ptr(), value.len()) };
+        if ret == RLC_OK {
+            if unsafe { wrapper_g1_is_valid(&g1) } {
+                Ok(Self(g1))
+            } else {
+                Err(Error::InvalidBytesRepresentation)
+            }
+        } else {
+            Err(Error::RelicError(ret))
+        }
+    }
+}
+
+impl TryFrom<[u8; COMPRESSED_BYTES_SIZE]> for G1Projective {
+    type Error = Error;
+
+    #[inline]
+    fn try_from(value: [u8; COMPRESSED_BYTES_SIZE]) -> Result<Self, Self::Error> {
+        Self::try_from(&value)
+    }
+}
+
+impl TryFrom<&[u8; COMPRESSED_BYTES_SIZE]> for G1Projective {
+    type Error = Error;
+
+    fn try_from(value: &[u8; COMPRESSED_BYTES_SIZE]) -> Result<Self, Self::Error> {
         let mut g1 = new_wrapper();
         let ret = unsafe { wrapper_g1_read_bin(&mut g1, value.as_ptr(), value.len()) };
         if ret == RLC_OK {
@@ -134,21 +165,41 @@ impl From<&G1Projective> for wrapper_g1_t {
     }
 }
 
-impl From<G1Projective> for [u8; BYTES_SIZE] {
+impl From<G1Projective> for [u8; UNCOMPRESSED_BYTES_SIZE] {
     fn from(value: G1Projective) -> Self {
-        let mut ret = [0u8; BYTES_SIZE];
+        let mut ret = [0u8; UNCOMPRESSED_BYTES_SIZE];
         unsafe {
-            wrapper_g1_write_bin(ret.as_mut_ptr(), ret.len(), &value.0);
+            wrapper_g1_write_bin(ret.as_mut_ptr(), ret.len(), &value.0, false);
         }
         ret
     }
 }
 
-impl From<&G1Projective> for [u8; BYTES_SIZE] {
+impl From<&G1Projective> for [u8; UNCOMPRESSED_BYTES_SIZE] {
     fn from(value: &G1Projective) -> Self {
-        let mut ret = [0u8; BYTES_SIZE];
+        let mut ret = [0u8; UNCOMPRESSED_BYTES_SIZE];
         unsafe {
-            wrapper_g1_write_bin(ret.as_mut_ptr(), ret.len(), &value.0);
+            wrapper_g1_write_bin(ret.as_mut_ptr(), ret.len(), &value.0, false);
+        }
+        ret
+    }
+}
+
+impl From<G1Projective> for [u8; COMPRESSED_BYTES_SIZE] {
+    fn from(value: G1Projective) -> Self {
+        let mut ret = [0u8; COMPRESSED_BYTES_SIZE];
+        unsafe {
+            wrapper_g1_write_bin(ret.as_mut_ptr(), ret.len(), &value.0, true);
+        }
+        ret
+    }
+}
+
+impl From<&G1Projective> for [u8; COMPRESSED_BYTES_SIZE] {
+    fn from(value: &G1Projective) -> Self {
+        let mut ret = [0u8; COMPRESSED_BYTES_SIZE];
+        unsafe {
+            wrapper_g1_write_bin(ret.as_mut_ptr(), ret.len(), &value.0, true);
         }
         ret
     }
@@ -485,13 +536,13 @@ impl Eq for G1Projective {}
 
 impl fmt::Debug for G1Projective {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let bytes: [u8; BYTES_SIZE] = self.into();
+        let bytes: [u8; UNCOMPRESSED_BYTES_SIZE] = self.into();
         f.debug_tuple("Relic").field(&bytes).finish()
     }
 }
 
 impl GroupEncoding for G1Projective {
-    type Repr = GenericArray<u8, U97>;
+    type Repr = GenericArray<u8, CompressedSize>;
 
     fn from_bytes(bytes: &Self::Repr) -> CtOption<Self> {
         let mut wrapper = new_wrapper();
@@ -516,7 +567,36 @@ impl GroupEncoding for G1Projective {
 
     #[inline]
     fn to_bytes(&self) -> Self::Repr {
-        GenericArray::from_array(self.into())
+        GenericArray::from_array(<[u8; COMPRESSED_BYTES_SIZE]>::from(self))
+    }
+}
+
+impl UncompressedEncoding for G1Projective {
+    type Uncompressed = GenericArray<u8, UncompressedSize>;
+
+    fn from_uncompressed(bytes: &Self::Uncompressed) -> CtOption<Self> {
+        let mut wrapper = new_wrapper();
+        if unsafe { wrapper_g1_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK {
+            CtOption::new(
+                Self(wrapper),
+                Choice::from(unsafe { wrapper_g1_is_valid(&wrapper) } as u8),
+            )
+        } else {
+            CtOption::new(Self(wrapper), 0.into())
+        }
+    }
+
+    fn from_uncompressed_unchecked(bytes: &Self::Uncompressed) -> CtOption<Self> {
+        let mut wrapper = new_wrapper();
+        if unsafe { wrapper_g1_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK {
+            CtOption::new(Self(wrapper), 1.into())
+        } else {
+            CtOption::new(Self(wrapper), 0.into())
+        }
+    }
+
+    fn to_uncompressed(&self) -> Self::Uncompressed {
+        GenericArray::from_array(<[u8; UNCOMPRESSED_BYTES_SIZE]>::from(self))
     }
 }
 

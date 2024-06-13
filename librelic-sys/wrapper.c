@@ -351,9 +351,9 @@ void wrapper_g1_norm(wrapper_g1_t* dst, const wrapper_g1_t* src) {
   }
 }
 
-void wrapper_g1_write_bin(uint8_t* dst, size_t len, const wrapper_g1_t* src) {
+void wrapper_g1_write_bin(uint8_t* dst, size_t len, const wrapper_g1_t* src, bool compressed) {
   RLC_TRY {
-    g1_write_bin(dst, len, *src, 0);
+    g1_write_bin(dst, len, *src, compressed);
   }
   RLC_CATCH_ANY {
     assert(false);
@@ -515,9 +515,9 @@ void wrapper_g2_norm(wrapper_g2_t* dst, const wrapper_g2_t* src) {
   }
 }
 
-void wrapper_g2_write_bin(uint8_t* dst, size_t len, const wrapper_g2_t* src) {
+void wrapper_g2_write_bin(uint8_t* dst, size_t len, const wrapper_g2_t* src, bool compressed) {
   RLC_TRY {
-    g2_write_bin(dst, len, *src, 0);
+    g2_write_bin(dst, len, *src, compressed);
   }
   RLC_CATCH_ANY {
     assert(false);
