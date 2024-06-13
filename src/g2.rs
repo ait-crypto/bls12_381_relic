@@ -823,4 +823,12 @@ mod test {
         );
         assert_eq!(G2Projective::sum([(v1, s1), (v2, s2)].into_iter()), check);
     }
+
+    #[test]
+    fn hash() {
+        let h1 = G2Projective::hash_to_curve(b"1", b"dst");
+        let h2 = G2Projective::hash_to_curve(b"2", b"dst");
+
+        assert_ne!(h1, h2);
+    }
 }

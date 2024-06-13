@@ -16,8 +16,11 @@ impl PrivateKey {
 
 impl Signer<Signature> for PrivateKey {
     fn try_sign(&self, msg: &[u8]) -> Result<Signature, Error> {
-        let base_point = G1Projective::hash_to_curve(msg, b"BLS");
-        Ok(Signature(base_point * self.0))
+        Ok(self.sign(msg))
+    }
+
+    fn sign(&self, msg: &[u8]) -> Signature {
+        Signature(G1Projective::hash_to_curve(msg, b"BLS") * self.0)
     }
 }
 
