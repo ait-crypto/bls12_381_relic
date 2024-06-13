@@ -10,7 +10,7 @@ impl PrivateKey {
     }
 
     fn to_public_key(&self) -> PublicKey {
-        PublicKey(G2Projective::identity() * self.0)
+        PublicKey(G2Projective::generator() * self.0)
     }
 }
 
@@ -26,7 +26,7 @@ struct PublicKey(G2Projective);
 impl Verifier<Signature> for PublicKey {
     fn verify(&self, msg: &[u8], signature: &Signature) -> Result<(), Error> {
         let base_point = G1Projective::hash_to_curve(msg, b"BLS");
-        if pair(base_point, self.0) == pair(signature.0, G2Projective::identity()) {
+        if pair(base_point, self.0) == pair(signature.0, G2Projective::generator()) {
             Ok(())
         } else {
             Err(Error::new())
@@ -43,4 +43,5 @@ fn bls_signature() {
 
     let sigma = sk.sign(b"this is the message");
     assert!(pk.verify(b"this is the message", &sigma).is_ok());
+    assert!(pk.verify(b"this is another message", &sigma).is_err());
 }
