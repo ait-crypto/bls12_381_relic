@@ -1,8 +1,12 @@
 [package]
 name = "librelic-sys"
+description = "Declarations for librelic"
 version = "0.1.0+0.6.0"
+authors = ["Sebastian Ramacher <sebastian.ramacher@ait.ac.at>"]
+homepage = "https://github.com/ait-crypto/bls12_381_relic/"
 edition = "2021"
 links = "relic"
+categories = ["external-ffi-bindings"]
 
 [dependencies]
 
