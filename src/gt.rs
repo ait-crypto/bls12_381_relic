@@ -15,7 +15,8 @@ use librelic_sys::{
     wrapper_gt_add, wrapper_gt_add_assign, wrapper_gt_double, wrapper_gt_generator,
     wrapper_gt_init, wrapper_gt_is_equal, wrapper_gt_is_neutral, wrapper_gt_is_valid,
     wrapper_gt_mul, wrapper_gt_mul_assign, wrapper_gt_neg, wrapper_gt_neutral, wrapper_gt_rand,
-    wrapper_gt_read_bin, wrapper_gt_t, wrapper_gt_write_bin, RLC_OK,
+    wrapper_gt_read_bin, wrapper_gt_sub, wrapper_gt_sub_assign, wrapper_gt_t, wrapper_gt_write_bin,
+    RLC_OK,
 };
 use pairing::group::{prime::PrimeGroup, Group, GroupEncoding, UncompressedEncoding};
 use subtle::{Choice, CtOption};
@@ -277,8 +278,11 @@ impl Sub for Gt {
     type Output = Gt;
 
     #[inline]
-    fn sub(self, rhs: Self) -> Self::Output {
-        self + -rhs
+    fn sub(mut self, rhs: Self) -> Self::Output {
+        unsafe {
+            wrapper_gt_sub_assign(&mut self.0, &rhs.0);
+        }
+        self
     }
 }
 
@@ -286,8 +290,11 @@ impl Sub<&Gt> for Gt {
     type Output = Gt;
 
     #[inline]
-    fn sub(self, rhs: &Self) -> Self::Output {
-        self + -rhs
+    fn sub(mut self, rhs: &Self) -> Self::Output {
+        unsafe {
+            wrapper_gt_sub_assign(&mut self.0, &rhs.0);
+        }
+        self
     }
 }
 
@@ -296,7 +303,11 @@ impl Sub for &Gt {
 
     #[inline]
     fn sub(self, rhs: Self) -> Self::Output {
-        self + -rhs
+        let mut ret = new_wrapper();
+        unsafe {
+            wrapper_gt_sub(&mut ret, &self.0, &rhs.0);
+        }
+        ret.into()
     }
 }
 
@@ -305,21 +316,29 @@ impl Sub<Gt> for &Gt {
 
     #[inline]
     fn sub(self, rhs: Gt) -> Self::Output {
-        self + -rhs
+        let mut ret = new_wrapper();
+        unsafe {
+            wrapper_gt_sub(&mut ret, &self.0, &rhs.0);
+        }
+        ret.into()
     }
 }
 
 impl SubAssign for Gt {
     #[inline]
     fn sub_assign(&mut self, rhs: Self) {
-        *self += -rhs;
+        unsafe {
+            wrapper_gt_sub_assign(&mut self.0, &rhs.0);
+        }
     }
 }
 
 impl SubAssign<&Gt> for Gt {
     #[inline]
     fn sub_assign(&mut self, rhs: &Self) {
-        *self += -rhs;
+        unsafe {
+            wrapper_gt_sub_assign(&mut self.0, &rhs.0);
+        }
     }
 }
 

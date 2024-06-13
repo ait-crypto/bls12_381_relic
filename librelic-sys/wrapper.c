@@ -616,6 +616,32 @@ void wrapper_gt_neg(wrapper_gt_t* gt) {
   }
 }
 
+void wrapper_gt_sub_assign(wrapper_gt_t* dst, const wrapper_gt_t* rhs) {
+  gt_t tmp;
+  gt_null(tmp);
+  RLC_TRY {
+    gt_new(tmp);
+    gt_inv(tmp, *rhs);
+    gt_mul(*dst, *dst, tmp);
+  }
+  RLC_FINALLY {
+    gt_free(tmp);
+  }
+  RLC_CATCH_ANY {
+    assert(false);
+  }
+}
+
+void wrapper_gt_sub(wrapper_gt_t* dst, const wrapper_gt_t* lhs, const wrapper_gt_t* rhs) {
+  RLC_TRY {
+    gt_inv(*dst, *rhs);
+    gt_mul(*dst, *dst, *lhs);
+  }
+  RLC_CATCH_ANY {
+    assert(false);
+  }
+}
+
 void wrapper_gt_mul_assign(wrapper_gt_t* dst, const wrapper_bn_t* rhs) {
   RLC_TRY {
     gt_exp(*dst, *dst, *rhs);

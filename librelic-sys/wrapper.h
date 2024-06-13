@@ -82,6 +82,8 @@ void wrapper_gt_add_assign(wrapper_gt_t* dst, const wrapper_gt_t* rhs);
 void wrapper_gt_add(wrapper_gt_t* dst, const wrapper_gt_t* lhs, const wrapper_gt_t* rhs);
 void wrapper_gt_double(wrapper_gt_t* dst, const wrapper_gt_t* src);
 void wrapper_gt_neg(wrapper_gt_t* gt);
+void wrapper_gt_sub_assign(wrapper_gt_t* dst, const wrapper_gt_t* rhs);
+void wrapper_gt_sub(wrapper_gt_t* dst, const wrapper_gt_t* lhs, const wrapper_gt_t* rhs);
 void wrapper_gt_mul_assign(wrapper_gt_t* dst, const wrapper_bn_t* rhs);
 void wrapper_gt_mul(wrapper_gt_t* dst, const wrapper_gt_t* lhs, const wrapper_bn_t* rhs);
 void wrapper_gt_write_bin(uint8_t* dst, size_t len, const wrapper_gt_t* src, bool compressed);
