@@ -48,7 +48,6 @@ fn new_wrapper() -> wrapper_g1_t {
 
 /// Representation of a G1 element
 #[derive(Clone, Copy)]
-#[allow(clippy::large_enum_variant)]
 pub struct G1Projective(pub(crate) wrapper_g1_t);
 
 impl G1Projective {
