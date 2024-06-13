@@ -793,7 +793,7 @@ impl Field for Scalar {
 
     fn sqrt_ratio(_num: &Self, _div: &Self) -> (Choice, Self) {
         // TODO: implement
-        unimplemented!()
+        unimplemented!("The wrapper has no use for this function.")
     }
 
     fn is_zero_vartime(&self) -> bool {
