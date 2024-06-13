@@ -69,17 +69,6 @@ void wrapper_bn_one(wrapper_bn_t* bn) {
   }
 }
 
-void wrapper_get_order(wrapper_bn_t* bn) {
-  RLC_TRY {
-    bn_null(*bn);
-    bn_new(*bn);
-    ep_curve_get_ord(*bn);
-  }
-  RLC_CATCH_ANY {
-    assert(false);
-  }
-}
-
 void wrapper_bn_add_assign(wrapper_bn_t* dst, const wrapper_bn_t* rhs) {
   RLC_TRY {
     bn_add(*dst, *dst, *rhs);
@@ -188,17 +177,6 @@ int wrapper_bn_inv(wrapper_bn_t* val) {
     return RLC_ERR;
   }
   return RLC_OK;
-}
-
-size_t wrapper_bn_size_bin(const wrapper_bn_t* bn) {
-  size_t size = 0;
-  RLC_TRY {
-    size = bn_size_bin(*bn);
-  }
-  RLC_CATCH_ANY {
-    assert(false);
-  }
-  return size;
 }
 
 void wrapper_bn_write_bin(uint8_t* dst, size_t len, const wrapper_bn_t* src) {
@@ -373,17 +351,6 @@ void wrapper_g1_norm(wrapper_g1_t* dst, const wrapper_g1_t* src) {
   }
 }
 
-size_t wrapper_g1_size_bin(const wrapper_g1_t* g1) {
-  size_t size = 0;
-  RLC_TRY {
-    size = g1_size_bin(*g1, 0);
-  }
-  RLC_CATCH_ANY {
-    assert(false);
-  }
-  return size;
-}
-
 void wrapper_g1_write_bin(uint8_t* dst, size_t len, const wrapper_g1_t* src) {
   RLC_TRY {
     g1_write_bin(dst, len, *src, 0);
@@ -548,17 +515,6 @@ void wrapper_g2_norm(wrapper_g2_t* dst, const wrapper_g2_t* src) {
   }
 }
 
-size_t wrapper_g2_size_bin(const wrapper_g2_t* g2) {
-  size_t size = 0;
-  RLC_TRY {
-    size = g2_size_bin(*g2, 0);
-  }
-  RLC_CATCH_ANY {
-    assert(false);
-  }
-  return size;
-}
-
 void wrapper_g2_write_bin(uint8_t* dst, size_t len, const wrapper_g2_t* src) {
   RLC_TRY {
     g2_write_bin(dst, len, *src, 0);
@@ -676,17 +632,6 @@ void wrapper_gt_mul(wrapper_gt_t* dst, const wrapper_gt_t* lhs, const wrapper_bn
   RLC_CATCH_ANY {
     assert(false);
   }
-}
-
-size_t wrapper_gt_size_bin(const wrapper_gt_t* gt) {
-  size_t size = 0;
-  RLC_TRY {
-    size = gt_size_bin(*(wrapper_gt_t*)gt, 0);
-  }
-  RLC_CATCH_ANY {
-    assert(false);
-  }
-  return size;
 }
 
 void wrapper_gt_write_bin(uint8_t* dst, size_t len, const wrapper_gt_t* src) {
