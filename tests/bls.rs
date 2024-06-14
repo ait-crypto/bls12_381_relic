@@ -1,7 +1,13 @@
-use bls12_381_relic::{ff::Field, pair, G1Projective, G2Projective, Scalar};
+//! Test based on the BLS signature scheme
+
+use bls12_381_relic::{ff::Field, pairing_sum, G1Projective, G2Projective, Scalar};
 use pairing::group::Group;
 use signature::{Error, Signer, Verifier};
 
+const HASH_SEPERATOR: &[u8] = b"BLS";
+
+/// BLS private key
+#[derive(Debug)]
 struct PrivateKey(Scalar);
 
 impl PrivateKey {
@@ -20,16 +26,27 @@ impl Signer<Signature> for PrivateKey {
     }
 
     fn sign(&self, msg: &[u8]) -> Signature {
-        Signature(G1Projective::hash_to_curve(msg, b"BLS") * self.0)
+        Signature(G1Projective::hash_to_curve(msg, HASH_SEPERATOR) * self.0)
     }
 }
 
+/// BLS public key
+#[derive(Debug)]
 struct PublicKey(G2Projective);
 
 impl Verifier<Signature> for PublicKey {
     fn verify(&self, msg: &[u8], signature: &Signature) -> Result<(), Error> {
-        let base_point = G1Projective::hash_to_curve(msg, b"BLS");
-        if pair(base_point, self.0) == pair(signature.0, G2Projective::generator()) {
+        // Instead of comparing the results of two pairings compute a pairing-sum and check if it the identity in Gt.
+        // e(H(msg), pk) == e(sigma, h) <=> e(H(msg), pk) - e(sigma, h) == 0 <=> e(-H(msg), pk) + e(sigma, h) == 0
+        let base_point = -G1Projective::hash_to_curve(msg, HASH_SEPERATOR);
+        if pairing_sum([
+            (base_point, self.0),
+            (signature.0, G2Projective::generator()),
+        ])
+        .is_identity()
+        .unwrap_u8()
+            == 1
+        {
             Ok(())
         } else {
             Err(Error::new())
@@ -37,6 +54,8 @@ impl Verifier<Signature> for PublicKey {
     }
 }
 
+/// BLS signature
+#[derive(Debug)]
 struct Signature(G1Projective);
 
 #[test]
@@ -45,6 +64,18 @@ fn bls_signature() {
     let pk = sk.to_public_key();
 
     let sigma = sk.sign(b"this is the message");
-    assert!(pk.verify(b"this is the message", &sigma).is_ok());
-    assert!(pk.verify(b"this is another message", &sigma).is_err());
+    assert!(
+        pk.verify(b"this is the message", &sigma).is_ok(),
+        "valid signature failed to verify"
+    );
+    assert!(
+        pk.verify(b"this is another message", &sigma).is_err(),
+        "invalid signature verified"
+    );
+
+    let pk = PrivateKey::new().to_public_key();
+    assert!(
+        pk.verify(b"this is the message", &sigma).is_err(),
+        "invalid signature verified"
+    );
 }
