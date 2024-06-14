@@ -1,6 +1,6 @@
 # Pairing-friendly BLS12-381 curve provided by relic
 
-[relic] is a library implementing pairing-friendly curves (among many other things). This crate integrates the algorithms provided by [relic] with the traits defined by [pairing]
+[relic] is a library implementing pairing-friendly curves (among many other things). This crate integrates the algorithms provided by [relic] with the traits defined by [pairing].
 
 ## Security Notes
 
