@@ -8,6 +8,7 @@ homepage = "https://github.com/ait-crypto/bls12_381_relic/"
 edition = "2021"
 links = "relic"
 categories = ["external-ffi-bindings"]
+rust-version = "1.70"
 
 [dependencies]
 

@@ -8,6 +8,7 @@ homepage = "https://github.com/ait-crypto/bls12_381_relic/"
 edition = "2021"
 keywords = ["pairings", "BLS12-381", "relic"]
 categories = ["cryptography", "api-bindings", "no-std"]
+rust-version = "1.70"
 
 [dependencies]
 generic-array = { version = "1", default-features = false, features = [
