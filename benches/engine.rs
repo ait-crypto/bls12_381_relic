@@ -37,8 +37,8 @@ where
 fn bench_pairings(c: &mut Criterion) {
     bench_engine::<RelicEngine>(c, "RelicEngine");
 
-    let g = RelicEngine::G1::generator();
-    let h = RelicEngine::G2::generator();
+    let g = <RelicEngine as Engine>::G1::generator();
+    let h = <RelicEngine as Engine>::G2::generator();
     c.bench_function("RelicEngine: pairing (projective)", move |b| {
         b.iter(|| {
             black_box(RelicEngine::projective_pairing(
