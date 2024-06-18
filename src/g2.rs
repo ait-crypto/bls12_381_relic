@@ -50,6 +50,7 @@ fn new_wrapper() -> wrapper_g2_t {
 
 /// Representation of a G2 element
 #[derive(Clone, Copy, Debug)]
+#[repr(transparent)]
 pub struct G2Projective(pub(crate) wrapper_g2_t);
 
 impl Default for G2Projective {

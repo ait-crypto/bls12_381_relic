@@ -31,6 +31,7 @@ const fn new_wrapper() -> wrapper_bn_t {
 
 /// Scalar in the prime field induced by the order of the elliptic curve groups
 #[derive(Clone, Copy, Debug)]
+#[repr(transparent)]
 pub struct Scalar(pub(crate) wrapper_bn_t);
 
 impl Scalar {

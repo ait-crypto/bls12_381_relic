@@ -40,6 +40,7 @@ pub(crate) fn new_wrapper() -> wrapper_gt_t {
 
 /// Representation of an group element in the target group
 #[derive(Clone, Copy, Debug)]
+#[repr(transparent)]
 pub struct Gt(pub(crate) wrapper_gt_t);
 
 impl AsRef<Gt> for Gt {

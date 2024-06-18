@@ -12,6 +12,7 @@ use crate::Scalar;
 ///
 /// This is a fake "affine" representation since relic does not support them explicitly.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
+#[repr(transparent)]
 pub struct Affine<G>(pub(crate) G);
 
 impl<G> AsRef<G> for Affine<G> {
