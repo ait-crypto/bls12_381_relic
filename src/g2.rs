@@ -1,7 +1,6 @@
 //! Implementation of the second source group `G2`
 
 use core::{
-    fmt,
     iter::Sum,
     mem::MaybeUninit,
     ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign},
@@ -50,7 +49,7 @@ fn new_wrapper() -> wrapper_g2_t {
 }
 
 /// Representation of a G2 element
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct G2Projective(pub(crate) wrapper_g2_t);
 
 impl Default for G2Projective {
@@ -402,16 +401,8 @@ impl Mul<&Scalar> for G2Projective {
     type Output = G2Projective;
 
     fn mul(mut self, rhs: &Scalar) -> Self::Output {
-        match rhs {
-            Scalar::Relic(bn) => unsafe {
-                wrapper_g2_mul_assign(&mut self.0, bn);
-            },
-            _ => {
-                let bn = rhs.into();
-                unsafe {
-                    wrapper_g2_mul_assign(&mut self.0, &bn);
-                }
-            }
+        unsafe {
+            wrapper_g2_mul_assign(&mut self.0, &rhs.0);
         }
         self
     }
@@ -422,16 +413,8 @@ impl Mul<Scalar> for &G2Projective {
 
     fn mul(self, rhs: Scalar) -> Self::Output {
         let mut g2 = new_wrapper();
-        match rhs {
-            Scalar::Relic(bn) => unsafe {
-                wrapper_g2_mul(&mut g2, &self.0, &bn);
-            },
-            _ => {
-                let bn = rhs.into();
-                unsafe {
-                    wrapper_g2_mul(&mut g2, &self.0, &bn);
-                }
-            }
+        unsafe {
+            wrapper_g2_mul(&mut g2, &self.0, &rhs.0);
         }
         G2Projective(g2)
     }
@@ -442,16 +425,8 @@ impl Mul<&Scalar> for &G2Projective {
 
     fn mul(self, rhs: &Scalar) -> Self::Output {
         let mut g2 = new_wrapper();
-        match rhs {
-            Scalar::Relic(bn) => unsafe {
-                wrapper_g2_mul(&mut g2, &self.0, bn);
-            },
-            _ => {
-                let bn = rhs.into();
-                unsafe {
-                    wrapper_g2_mul(&mut g2, &self.0, &bn);
-                }
-            }
+        unsafe {
+            wrapper_g2_mul(&mut g2, &self.0, &rhs.0);
         }
         G2Projective(g2)
     }
@@ -502,16 +477,8 @@ impl MulAssign<Scalar> for G2Projective {
 
 impl MulAssign<&Scalar> for G2Projective {
     fn mul_assign(&mut self, rhs: &Scalar) {
-        match rhs {
-            Scalar::Relic(bn) => unsafe {
-                wrapper_g2_mul_assign(&mut self.0, bn);
-            },
-            _ => {
-                let bn = rhs.into();
-                unsafe {
-                    wrapper_g2_mul_assign(&mut self.0, &bn);
-                }
-            }
+        unsafe {
+            wrapper_g2_mul_assign(&mut self.0, &rhs.0);
         }
     }
 }
@@ -524,13 +491,6 @@ impl PartialEq for G2Projective {
 }
 
 impl Eq for G2Projective {}
-
-impl fmt::Debug for G2Projective {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let bytes: [u8; UNCOMPRESSED_BYTES_SIZE] = self.into();
-        f.debug_tuple("Relic").field(&bytes).finish()
-    }
-}
 
 impl GroupEncoding for G2Projective {
     type Repr = GenericArray<u8, CompressedSize>;

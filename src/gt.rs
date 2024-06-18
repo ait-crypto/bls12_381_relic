@@ -1,7 +1,6 @@
 //! Implementation of the target group `Gt`
 
 use core::{
-    fmt,
     iter::Sum,
     mem::MaybeUninit,
     ops::{Add, AddAssign, Mul, MulAssign, Neg, Sub, SubAssign},
@@ -40,7 +39,7 @@ pub(crate) fn new_wrapper() -> wrapper_gt_t {
 }
 
 /// Representation of an group element in the target group
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Gt(pub(crate) wrapper_gt_t);
 
 impl AsRef<Gt> for Gt {
@@ -387,16 +386,8 @@ impl Mul<&Scalar> for Gt {
     type Output = Gt;
 
     fn mul(mut self, rhs: &Scalar) -> Self::Output {
-        match rhs {
-            Scalar::Relic(bn) => unsafe {
-                wrapper_gt_mul_assign(&mut self.0, bn);
-            },
-            _ => {
-                let bn = rhs.into();
-                unsafe {
-                    wrapper_gt_mul_assign(&mut self.0, &bn);
-                }
-            }
+        unsafe {
+            wrapper_gt_mul_assign(&mut self.0, &rhs.0);
         }
         self
     }
@@ -407,16 +398,8 @@ impl Mul<Scalar> for &Gt {
 
     fn mul(self, rhs: Scalar) -> Self::Output {
         let mut gt = new_wrapper();
-        match rhs {
-            Scalar::Relic(bn) => unsafe {
-                wrapper_gt_mul(&mut gt, &self.0, &bn);
-            },
-            _ => {
-                let bn = rhs.into();
-                unsafe {
-                    wrapper_gt_mul(&mut gt, &self.0, &bn);
-                }
-            }
+        unsafe {
+            wrapper_gt_mul(&mut gt, &self.0, &rhs.0);
         }
         Gt(gt)
     }
@@ -427,16 +410,8 @@ impl Mul<&Scalar> for &Gt {
 
     fn mul(self, rhs: &Scalar) -> Self::Output {
         let mut gt = new_wrapper();
-        match rhs {
-            Scalar::Relic(bn) => unsafe {
-                wrapper_gt_mul(&mut gt, &self.0, bn);
-            },
-            _ => {
-                let bn = rhs.into();
-                unsafe {
-                    wrapper_gt_mul(&mut gt, &self.0, &bn);
-                }
-            }
+        unsafe {
+            wrapper_gt_mul(&mut gt, &self.0, &rhs.0);
         }
         Gt(gt)
     }
@@ -451,16 +426,8 @@ impl MulAssign<Scalar> for Gt {
 
 impl MulAssign<&Scalar> for Gt {
     fn mul_assign(&mut self, rhs: &Scalar) {
-        match rhs {
-            Scalar::Relic(bn) => unsafe {
-                wrapper_gt_mul_assign(&mut self.0, bn);
-            },
-            _ => {
-                let bn = rhs.into();
-                unsafe {
-                    wrapper_gt_mul_assign(&mut self.0, &bn);
-                }
-            }
+        unsafe {
+            wrapper_gt_mul_assign(&mut self.0, &rhs.0);
         }
     }
 }
@@ -473,13 +440,6 @@ impl PartialEq for Gt {
 }
 
 impl Eq for Gt {}
-
-impl fmt::Debug for Gt {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let bytes: [u8; UNCOMPRESSED_BYTES_SIZE] = self.into();
-        f.debug_tuple("Relic").field(&bytes).finish()
-    }
-}
 
 impl GroupEncoding for Gt {
     type Repr = GenericArray<u8, CompressedSize>;
