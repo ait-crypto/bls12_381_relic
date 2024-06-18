@@ -550,9 +550,8 @@ impl PrimeField for Scalar {
 #[cfg(feature = "zeroize")]
 impl zeroize::Zeroize for Scalar {
     fn zeroize(&mut self) {
-        match self {
-            Scalar::Bytes(ref mut bytes) => bytes.zeroize(),
-            Scalar::Relic(ref mut bn) => unsafe { wrapper_bn_zero(bn) },
+        unsafe {
+            wrapper_bn_zero(&mut self.0);
         }
     }
 }
