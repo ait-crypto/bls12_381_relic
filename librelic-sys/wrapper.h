@@ -23,6 +23,7 @@ void wrapper_bn_write_bin(uint8_t* dst, size_t len, const wrapper_bn_t* src);
 int wrapper_bn_read_bin(wrapper_bn_t* dst, const uint8_t* src, size_t len, bool pack);
 void wrapper_bn_rand(wrapper_bn_t* dst, const uint8_t* src, size_t len);
 bool wrapper_bn_is_zero(const wrapper_bn_t* value);
+bool wrapper_bn_is_even(const wrapper_bn_t* value);
 bool wrapper_bn_is_odd(const wrapper_bn_t* value);
 
 typedef g1_t wrapper_g1_t;

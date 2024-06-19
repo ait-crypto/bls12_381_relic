@@ -204,6 +204,10 @@ bool wrapper_bn_is_zero(const wrapper_bn_t* value) {
   return bn_is_zero(*value) == 1;
 }
 
+bool wrapper_bn_is_even(const wrapper_bn_t* value) {
+  return bn_is_even(*value) == 1;
+}
+
 bool wrapper_bn_is_odd(const wrapper_bn_t* value) {
   return bn_is_even(*value) == 0;
 }
