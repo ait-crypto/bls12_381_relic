@@ -478,8 +478,8 @@ impl Field for Scalar {
     }
 
     fn invert(&self) -> CtOption<Self> {
-        let mut value = self.into();
-        let ret = unsafe { wrapper_bn_inv(&mut value) };
+        let mut value = new_wrapper();
+        let ret = unsafe { wrapper_bn_inv(&mut value, &self.0) };
         CtOption::new(Self(value), ((ret == RLC_OK) as u8).into())
     }
 

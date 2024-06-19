@@ -163,14 +163,14 @@ void wrapper_bn_mul(wrapper_bn_t* dst, const wrapper_bn_t* lhs, const wrapper_bn
   }
 }
 
-int wrapper_bn_inv(wrapper_bn_t* val) {
+int wrapper_bn_inv(wrapper_bn_t* dst, const wrapper_bn_t* val) {
   if (bn_is_zero(*val)) {
     return RLC_ERR;
   }
   RLC_TRY {
-    bn_mod_inv(*val, *val, order);
-    if (bn_sign(*val) == RLC_NEG) {
-      bn_add(*val, *val, order);
+    bn_mod_inv(*dst, *val, order);
+    if (bn_sign(*dst) == RLC_NEG) {
+      bn_add(*dst, *dst, order);
     }
   }
   RLC_CATCH_ANY {

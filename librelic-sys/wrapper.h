@@ -19,7 +19,7 @@ void wrapper_bn_sub_assign(wrapper_bn_t* dst, const wrapper_bn_t* rhs);
 void wrapper_bn_sub(wrapper_bn_t* dst, const wrapper_bn_t* lhs, const wrapper_bn_t* rhs);
 void wrapper_bn_mul_assign(wrapper_bn_t* dst, const wrapper_bn_t* rhs);
 void wrapper_bn_mul(wrapper_bn_t* dst, const wrapper_bn_t* lhs, const wrapper_bn_t* rhs);
-int wrapper_bn_inv(wrapper_bn_t* val);
+int wrapper_bn_inv(wrapper_bn_t* dst, const wrapper_bn_t* val);
 void wrapper_bn_write_bin(uint8_t* dst, size_t len, const wrapper_bn_t* src);
 int wrapper_bn_read_bin(wrapper_bn_t* dst, const uint8_t* src, size_t len, bool pack);
 void wrapper_bn_rand(wrapper_bn_t* dst, const uint8_t* src, size_t len);
