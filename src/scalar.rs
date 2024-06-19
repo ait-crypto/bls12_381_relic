@@ -565,7 +565,7 @@ impl zeroize::Zeroize for Scalar {
 
 #[cfg(test)]
 mod test {
-    use librelic_sys::wrapper_bn_one;
+    use librelic_sys::{wrapper_bn_one, wrapper_bn_zero};
     use pairing::group::ff::{Field, PrimeField};
 
     use crate::scalar::new_wrapper;
@@ -579,6 +579,17 @@ mod test {
 
     #[test]
     fn zero() {
+        let mut zero_relic = new_wrapper();
+        unsafe {
+            wrapper_bn_zero(&mut zero_relic);
+        }
+        let zero_relic = Scalar::from(zero_relic);
+
+        let zero = Scalar::ZERO;
+        assert_eq!(zero_relic, zero);
+        assert!(zero.is_zero_vartime());
+        assert_eq!(zero.is_zero().unwrap_u8(), 1);
+
         let scalar = Scalar::default();
         assert_eq!(scalar.invert().is_none().unwrap_u8(), 1);
         assert_eq!(scalar + scalar, Scalar::ZERO);
