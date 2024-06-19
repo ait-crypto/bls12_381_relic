@@ -19,6 +19,21 @@ use subtle::{Choice, ConditionallySelectable, ConstantTimeEq, CtOption};
 use crate::Error;
 use rand_core::RngCore;
 
+/// Reimplementation of `bn_make` to have a `const` version
+#[inline]
+const fn new_wrapper_with_v(v: u64) -> wrapper_bn_t {
+    [bn_st {
+        alloc: 34,
+        used: 1,
+        sign: RLC_POS,
+        dp: [
+            v, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0,
+        ],
+    }]
+}
+
+/// Reimplementation of `bn_make` to have a `const` version
 #[inline]
 const fn new_wrapper() -> wrapper_bn_t {
     [bn_st {
@@ -36,15 +51,11 @@ pub struct Scalar(pub(crate) wrapper_bn_t);
 
 impl Scalar {
     const fn from_u64(v: u64) -> Self {
-        let mut bn = new_wrapper();
-        bn[0].dp[0] = v;
-        Self(bn)
+        Self(new_wrapper_with_v(v))
     }
 
     const fn from_u8(v: u8) -> Self {
-        let mut bn = new_wrapper();
-        bn[0].dp[0] = v as u64;
-        Self(bn)
+        Self(new_wrapper_with_v(v as u64))
     }
 
     /// Obtain a representation of 1
@@ -73,11 +84,10 @@ impl Scalar {
         bytes2: [u8; 8],
         bytes3: [u8; 8],
     ) -> Self {
-        let mut bn = new_wrapper();
+        let mut bn = new_wrapper_with_v(u64::from_be_bytes(bytes3));
         bn[0].dp[3] = u64::from_be_bytes(bytes0);
         bn[0].dp[2] = u64::from_be_bytes(bytes1);
         bn[0].dp[1] = u64::from_be_bytes(bytes2);
-        bn[0].dp[0] = u64::from_be_bytes(bytes3);
         bn[0].used = 4;
         Self(bn)
     }
