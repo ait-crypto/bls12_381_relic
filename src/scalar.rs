@@ -558,7 +558,7 @@ impl PrimeField for Scalar {
 impl zeroize::Zeroize for Scalar {
     fn zeroize(&mut self) {
         unsafe {
-            wrapper_bn_zero(&mut self.0);
+            librelic_sys::wrapper_bn_zero(&mut self.0);
         }
     }
 }
