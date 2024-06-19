@@ -605,6 +605,7 @@ mod test {
 
         let one = Scalar::ONE;
         assert_eq!(one_relic, one);
+        assert_eq!(one, Scalar::from_u64(1));
 
         assert_eq!(one.invert().is_some().unwrap_u8(), 1);
         assert_eq!(one * one, one);
@@ -613,6 +614,10 @@ mod test {
     #[test]
     fn two() {
         let two = Scalar::ONE.double();
+        assert_eq!(two, Scalar::from_u64(2));
+        assert_eq!(two.is_even().unwrap_u8(), 1);
+        assert_eq!(two.is_odd().unwrap_u8(), 0);
+
         let two_inverse = two.invert().unwrap();
         assert_eq!(two_inverse, Scalar::TWO_INV);
         assert_eq!(two_inverse * two, Scalar::ONE);
