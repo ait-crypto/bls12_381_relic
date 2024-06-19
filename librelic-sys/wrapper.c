@@ -31,17 +31,6 @@ __attribute__((destructor)) static void clean_relic(void) {
   }
 }
 
-void wrapper_bn_init(wrapper_bn_t* bn) {
-  RLC_TRY {
-    bn_null(*bn);
-    bn_new(*bn);
-  }
-  RLC_CATCH_ANY {
-    bn_free(*bn);
-    assert(false);
-  }
-}
-
 void wrapper_bn_copy(wrapper_bn_t* dst, const wrapper_bn_t* src) {
   RLC_TRY {
     bn_copy(*dst, *src);

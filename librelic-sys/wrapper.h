@@ -7,7 +7,6 @@
 
 typedef bn_t wrapper_bn_t;
 
-void wrapper_bn_init(wrapper_bn_t* bn);
 void wrapper_bn_copy(wrapper_bn_t* dst, const wrapper_bn_t* src);
 void wrapper_bn_zero(wrapper_bn_t* bn);
 void wrapper_bn_one(wrapper_bn_t* bn);
