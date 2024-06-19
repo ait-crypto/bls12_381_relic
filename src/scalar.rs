@@ -11,7 +11,7 @@ use librelic_sys::{
     bn_st, wrapper_bn_add, wrapper_bn_add_assign, wrapper_bn_double, wrapper_bn_inv,
     wrapper_bn_is_odd, wrapper_bn_is_zero, wrapper_bn_mul, wrapper_bn_mul_assign, wrapper_bn_neg,
     wrapper_bn_read_bin, wrapper_bn_sub, wrapper_bn_sub_assign, wrapper_bn_t, wrapper_bn_write_bin,
-    wrapper_bn_zero, RLC_OK, RLC_POS,
+    RLC_OK, RLC_POS,
 };
 use pairing::group::ff::{Field, PrimeField};
 use subtle::{Choice, ConditionallySelectable, ConstantTimeEq, CtOption};
@@ -394,11 +394,7 @@ impl Sum for Scalar {
 
 impl<'a> Sum<&'a Scalar> for Scalar {
     fn sum<I: Iterator<Item = &'a Self>>(iter: I) -> Self {
-        let mut start = new_wrapper();
-        unsafe {
-            wrapper_bn_zero(&mut start);
-        }
-        Self(iter.fold(start, |mut sum, v| {
+        Self(iter.fold(new_wrapper(), |mut sum, v| {
             unsafe {
                 wrapper_bn_add_assign(&mut sum, &v.0);
             }
