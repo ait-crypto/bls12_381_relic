@@ -10,7 +10,7 @@ use core::{
 use librelic_sys::{
     bn_st, wrapper_bn_add, wrapper_bn_add_assign, wrapper_bn_double, wrapper_bn_inv,
     wrapper_bn_is_even, wrapper_bn_is_odd, wrapper_bn_is_zero, wrapper_bn_mul,
-    wrapper_bn_mul_assign, wrapper_bn_neg, wrapper_bn_read_bin, wrapper_bn_sub,
+    wrapper_bn_mul_assign, wrapper_bn_neg, wrapper_bn_read_bin, wrapper_bn_sqr, wrapper_bn_sub,
     wrapper_bn_sub_assign, wrapper_bn_t, wrapper_bn_write_bin, RLC_OK, RLC_POS,
 };
 use pairing::group::ff::{Field, PrimeField};
@@ -468,9 +468,9 @@ impl Field for Scalar {
     }
 
     fn square(&self) -> Self {
-        let mut value = self.into();
+        let mut value = new_wrapper();
         unsafe {
-            wrapper_bn_mul_assign(&mut value, &value);
+            wrapper_bn_sqr(&mut value, &self.0);
         }
         Self(value)
     }

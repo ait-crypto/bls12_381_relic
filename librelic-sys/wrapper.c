@@ -152,6 +152,20 @@ void wrapper_bn_mul(wrapper_bn_t* dst, const wrapper_bn_t* lhs, const wrapper_bn
   }
 }
 
+void wrapper_bn_sqr(wrapper_bn_t* dst, const wrapper_bn_t* src) {
+  RLC_TRY {
+    bn_sqr(*dst, *src);
+    if (bn_sign(*dst) == RLC_NEG) {
+      bn_add(*dst, *dst, order);
+    } else {
+      bn_mod(*dst, *dst, order);
+    }
+  }
+  RLC_CATCH_ANY {
+    assert(false);
+  }
+}
+
 int wrapper_bn_inv(wrapper_bn_t* dst, const wrapper_bn_t* val) {
   if (bn_is_zero(*val)) {
     return RLC_ERR;
