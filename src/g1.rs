@@ -360,30 +360,19 @@ impl SubAssign<&G1Projective> for G1Projective {
     }
 }
 
-impl Sum for G1Projective {
-    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+impl<G1> Sum<G1> for G1Projective
+where
+    G1: AsRef<G1Projective>,
+{
+    fn sum<I: Iterator<Item = G1>>(iter: I) -> Self {
         let mut start = new_wrapper();
         unsafe {
             wrapper_g1_neutral(&mut start);
         }
         Self(iter.fold(start, |mut sum, v| {
+            let g1 = v.as_ref();
             unsafe {
-                wrapper_g1_add_assign(&mut sum, &v.0);
-            }
-            sum
-        }))
-    }
-}
-
-impl<'a> Sum<&'a G1Projective> for G1Projective {
-    fn sum<I: Iterator<Item = &'a Self>>(iter: I) -> Self {
-        let mut start = new_wrapper();
-        unsafe {
-            wrapper_g1_neutral(&mut start);
-        }
-        Self(iter.fold(start, |mut sum, v| {
-            unsafe {
-                wrapper_g1_add_assign(&mut sum, &v.0);
+                wrapper_g1_add_assign(&mut sum, &g1.0);
             }
             sum
         }))
