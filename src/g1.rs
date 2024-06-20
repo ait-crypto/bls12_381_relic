@@ -379,19 +379,15 @@ where
     }
 }
 
-impl Mul<Scalar> for G1Projective {
+impl<S> Mul<S> for G1Projective
+where
+    S: AsRef<Scalar>,
+{
     type Output = G1Projective;
 
     #[inline]
-    fn mul(self, rhs: Scalar) -> Self::Output {
-        self * &rhs
-    }
-}
-
-impl Mul<&Scalar> for G1Projective {
-    type Output = G1Projective;
-
-    fn mul(mut self, rhs: &Scalar) -> Self::Output {
+    fn mul(mut self, rhs: S) -> Self::Output {
+        let rhs = rhs.as_ref();
         unsafe {
             wrapper_g1_mul_assign(&mut self.0, &rhs.0);
         }
@@ -399,23 +395,15 @@ impl Mul<&Scalar> for G1Projective {
     }
 }
 
-impl Mul<Scalar> for &G1Projective {
+impl<S> Mul<S> for &G1Projective
+where
+    S: AsRef<Scalar>,
+{
     type Output = G1Projective;
 
-    fn mul(self, rhs: Scalar) -> Self::Output {
+    fn mul(self, rhs: S) -> Self::Output {
         let mut g1 = new_wrapper();
-        unsafe {
-            wrapper_g1_mul(&mut g1, &self.0, &rhs.0);
-        }
-        G1Projective(g1)
-    }
-}
-
-impl Mul<&Scalar> for &G1Projective {
-    type Output = G1Projective;
-
-    fn mul(self, rhs: &Scalar) -> Self::Output {
-        let mut g1 = new_wrapper();
+        let rhs = rhs.as_ref();
         unsafe {
             wrapper_g1_mul(&mut g1, &self.0, &rhs.0);
         }
@@ -459,15 +447,12 @@ impl Mul<&G1Projective> for &Scalar {
     }
 }
 
-impl MulAssign<Scalar> for G1Projective {
-    #[inline]
-    fn mul_assign(&mut self, rhs: Scalar) {
-        *self *= &rhs;
-    }
-}
-
-impl MulAssign<&Scalar> for G1Projective {
-    fn mul_assign(&mut self, rhs: &Scalar) {
+impl<S> MulAssign<S> for G1Projective
+where
+    S: AsRef<Scalar>,
+{
+    fn mul_assign(&mut self, rhs: S) {
+        let rhs = rhs.as_ref();
         unsafe {
             wrapper_g1_mul_assign(&mut self.0, &rhs.0);
         }
