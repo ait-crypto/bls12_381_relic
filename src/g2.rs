@@ -784,6 +784,35 @@ impl GroupEncoding for Affine<G2Projective> {
     }
 }
 
+impl UncompressedEncoding for Affine<G2Projective> {
+    type Uncompressed = GenericArray<u8, UncompressedSize>;
+
+    fn from_uncompressed(bytes: &Self::Uncompressed) -> CtOption<Self> {
+        let mut wrapper = new_wrapper();
+        if unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK {
+            CtOption::new(
+                Self(wrapper.into()),
+                Choice::from(unsafe { wrapper_g2_is_valid(&wrapper) } as u8),
+            )
+        } else {
+            CtOption::new(Self(wrapper.into()), 0.into())
+        }
+    }
+
+    fn from_uncompressed_unchecked(bytes: &Self::Uncompressed) -> CtOption<Self> {
+        let mut wrapper = new_wrapper();
+        if unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK {
+            CtOption::new(Self(wrapper.into()), 1.into())
+        } else {
+            CtOption::new(Self(wrapper.into()), 0.into())
+        }
+    }
+
+    fn to_uncompressed(&self) -> Self::Uncompressed {
+        self.0.to_uncompressed()
+    }
+}
+
 #[cfg(feature = "zeroize")]
 impl zeroize::Zeroize for G2Projective {
     fn zeroize(&mut self) {

@@ -2,9 +2,9 @@ use core::ops::{Add, AddAssign, Mul, Neg, Sub, SubAssign};
 
 use pairing::group::{
     prime::{PrimeCurve, PrimeCurveAffine},
-    GroupEncoding, UncompressedEncoding,
+    GroupEncoding,
 };
-use subtle::{Choice, CtOption};
+use subtle::Choice;
 
 use crate::Scalar;
 
@@ -195,28 +195,6 @@ where
     #[inline]
     fn to_curve(&self) -> Self::Curve {
         self.0
-    }
-}
-
-impl<G> UncompressedEncoding for Affine<G>
-where
-    Self: GroupEncoding,
-{
-    type Uncompressed = <Self as GroupEncoding>::Repr;
-
-    #[inline]
-    fn from_uncompressed(bytes: &Self::Uncompressed) -> CtOption<Self> {
-        Self::from_bytes(bytes)
-    }
-
-    #[inline]
-    fn from_uncompressed_unchecked(bytes: &Self::Uncompressed) -> CtOption<Self> {
-        Self::from_bytes_unchecked(bytes)
-    }
-
-    #[inline]
-    fn to_uncompressed(&self) -> Self::Uncompressed {
-        self.to_bytes()
     }
 }
 
