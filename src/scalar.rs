@@ -192,21 +192,14 @@ impl TryFrom<&[u8]> for Scalar {
     }
 }
 
-impl Add for Scalar {
-    type Output = Scalar;
+impl<S> Add<S> for Scalar
+where
+    S: AsRef<Self>,
+{
+    type Output = Self;
 
-    fn add(mut self, rhs: Self) -> Self::Output {
-        unsafe {
-            wrapper_bn_add_assign(&mut self.0, &rhs.0);
-        }
-        self
-    }
-}
-
-impl Add<&Scalar> for Scalar {
-    type Output = Scalar;
-
-    fn add(mut self, rhs: &Self) -> Self::Output {
+    fn add(mut self, rhs: S) -> Self::Output {
+        let rhs = rhs.as_ref();
         unsafe {
             wrapper_bn_add_assign(&mut self.0, &rhs.0);
         }
@@ -234,16 +227,12 @@ impl Add<Scalar> for &Scalar {
     }
 }
 
-impl AddAssign for Scalar {
-    fn add_assign(&mut self, rhs: Self) {
-        unsafe {
-            wrapper_bn_add_assign(&mut self.0, &rhs.0);
-        }
-    }
-}
-
-impl AddAssign<&Scalar> for Scalar {
-    fn add_assign(&mut self, rhs: &Self) {
+impl<S> AddAssign<S> for Scalar
+where
+    S: AsRef<Self>,
+{
+    fn add_assign(&mut self, rhs: S) {
+        let rhs = rhs.as_ref();
         unsafe {
             wrapper_bn_add_assign(&mut self.0, &rhs.0);
         }
@@ -251,7 +240,7 @@ impl AddAssign<&Scalar> for Scalar {
 }
 
 impl Neg for Scalar {
-    type Output = Scalar;
+    type Output = Self;
 
     fn neg(mut self) -> Self::Output {
         unsafe {
@@ -261,10 +250,14 @@ impl Neg for Scalar {
     }
 }
 
-impl Sub for Scalar {
-    type Output = Scalar;
+impl<S> Sub<S> for Scalar
+where
+    S: AsRef<Self>,
+{
+    type Output = Self;
 
-    fn sub(mut self, rhs: Self) -> Self::Output {
+    fn sub(mut self, rhs: S) -> Self::Output {
+        let rhs = rhs.as_ref();
         unsafe {
             wrapper_bn_sub_assign(&mut self.0, &rhs.0);
         }
@@ -272,22 +265,15 @@ impl Sub for Scalar {
     }
 }
 
-impl Sub<&Scalar> for Scalar {
+impl<S> Sub<S> for &Scalar
+where
+    S: AsRef<Scalar>,
+{
     type Output = Scalar;
 
-    fn sub(mut self, rhs: &Self) -> Self::Output {
-        unsafe {
-            wrapper_bn_sub_assign(&mut self.0, &rhs.0);
-        }
-        self
-    }
-}
-
-impl Sub for &Scalar {
-    type Output = Scalar;
-
-    fn sub(self, rhs: Self) -> Self::Output {
+    fn sub(self, rhs: S) -> Self::Output {
         let mut ret = new_wrapper();
+        let rhs = rhs.as_ref();
         unsafe {
             wrapper_bn_sub(&mut ret, &self.0, &rhs.0);
         }
@@ -295,49 +281,26 @@ impl Sub for &Scalar {
     }
 }
 
-impl Sub<Scalar> for &Scalar {
-    type Output = Scalar;
-
-    fn sub(self, rhs: Scalar) -> Self::Output {
-        let mut ret = new_wrapper();
-        unsafe {
-            wrapper_bn_sub(&mut ret, &self.0, &rhs.0);
-        }
-        Scalar(ret)
-    }
-}
-
-impl SubAssign for Scalar {
-    fn sub_assign(&mut self, rhs: Self) {
+impl<S> SubAssign<S> for Scalar
+where
+    S: AsRef<Self>,
+{
+    fn sub_assign(&mut self, rhs: S) {
+        let rhs = rhs.as_ref();
         unsafe {
             wrapper_bn_sub_assign(&mut self.0, &rhs.0);
         }
     }
 }
 
-impl SubAssign<&Scalar> for Scalar {
-    fn sub_assign(&mut self, rhs: &Self) {
-        unsafe {
-            wrapper_bn_sub_assign(&mut self.0, &rhs.0);
-        }
-    }
-}
-
-impl Mul for Scalar {
+impl<S> Mul<S> for Scalar
+where
+    S: AsRef<Self>,
+{
     type Output = Scalar;
 
-    fn mul(mut self, rhs: Self) -> Self::Output {
-        unsafe {
-            wrapper_bn_mul_assign(&mut self.0, &rhs.0);
-        }
-        self
-    }
-}
-
-impl Mul<&Scalar> for Scalar {
-    type Output = Scalar;
-
-    fn mul(mut self, rhs: &Self) -> Self::Output {
+    fn mul(mut self, rhs: S) -> Self::Output {
+        let rhs = rhs.as_ref();
         unsafe {
             wrapper_bn_mul_assign(&mut self.0, &rhs.0);
         }
@@ -365,25 +328,25 @@ impl Mul<Scalar> for &Scalar {
     }
 }
 
-impl MulAssign for Scalar {
-    fn mul_assign(&mut self, rhs: Self) {
+impl<S> MulAssign<S> for Scalar
+where
+    S: AsRef<Self>,
+{
+    fn mul_assign(&mut self, rhs: S) {
+        let rhs = rhs.as_ref();
         unsafe {
             wrapper_bn_mul_assign(&mut self.0, &rhs.0);
         }
     }
 }
 
-impl MulAssign<&Scalar> for Scalar {
-    fn mul_assign(&mut self, rhs: &Self) {
-        unsafe {
-            wrapper_bn_mul_assign(&mut self.0, &rhs.0);
-        }
-    }
-}
-
-impl Sum for Scalar {
-    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+impl<S> Sum<S> for Scalar
+where
+    S: AsRef<Self>,
+{
+    fn sum<I: Iterator<Item = S>>(iter: I) -> Self {
         Self(iter.fold(new_wrapper(), |mut sum, v| {
+            let v = v.as_ref();
             unsafe {
                 wrapper_bn_add_assign(&mut sum, &v.0);
             }
@@ -392,31 +355,13 @@ impl Sum for Scalar {
     }
 }
 
-impl<'a> Sum<&'a Scalar> for Scalar {
-    fn sum<I: Iterator<Item = &'a Self>>(iter: I) -> Self {
-        Self(iter.fold(new_wrapper(), |mut sum, v| {
-            unsafe {
-                wrapper_bn_add_assign(&mut sum, &v.0);
-            }
-            sum
-        }))
-    }
-}
-
-impl Product for Scalar {
-    fn product<I: Iterator<Item = Self>>(iter: I) -> Self {
+impl<S> Product<S> for Scalar
+where
+    S: AsRef<Self>,
+{
+    fn product<I: Iterator<Item = S>>(iter: I) -> Self {
         iter.fold(Self::ONE, |mut prod, v| {
-            unsafe {
-                wrapper_bn_mul_assign(&mut prod.0, &v.0);
-            }
-            prod
-        })
-    }
-}
-
-impl<'a> Product<&'a Scalar> for Scalar {
-    fn product<I: Iterator<Item = &'a Self>>(iter: I) -> Self {
-        iter.fold(Self::ONE, |mut prod, v| {
+            let v = v.as_ref();
             unsafe {
                 wrapper_bn_mul_assign(&mut prod.0, &v.0);
             }
