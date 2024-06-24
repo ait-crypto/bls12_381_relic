@@ -578,15 +578,6 @@ void wrapper_gt_generator(wrapper_gt_t* gt) {
   }
 }
 
-void wrapper_gt_rand(wrapper_gt_t* gt) {
-  RLC_TRY {
-    gt_rand(*gt);
-  }
-  RLC_CATCH_ANY {
-    assert(false);
-  }
-}
-
 void wrapper_gt_add_assign(wrapper_gt_t* dst, const wrapper_gt_t* rhs) {
   RLC_TRY {
     gt_mul(*dst, *dst, *rhs);

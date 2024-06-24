@@ -78,7 +78,6 @@ typedef gt_t wrapper_gt_t;
 void wrapper_gt_init(wrapper_gt_t* gt);
 void wrapper_gt_neutral(wrapper_gt_t* gt);
 void wrapper_gt_generator(wrapper_gt_t* gt);
-void wrapper_gt_rand(wrapper_gt_t* gt);
 void wrapper_gt_add_assign(wrapper_gt_t* dst, const wrapper_gt_t* rhs);
 void wrapper_gt_add(wrapper_gt_t* dst, const wrapper_gt_t* lhs, const wrapper_gt_t* rhs);
 void wrapper_gt_double(wrapper_gt_t* dst, const wrapper_gt_t* src);
