@@ -756,8 +756,8 @@ mod test {
         assert_eq!(check, v1 + rv2);
         assert_eq!(check, rv1 + v2);
 
-        let a1 = G2Affine::from(v1);
-        let a2 = G2Affine::from(v2);
+        let a1 = v1.to_affine();
+        let a2 = v2.to_affine();
         assert_eq!(check, a1 + a2);
         assert_eq!(check, a1 + v2);
         assert_eq!(check, v1 + a2);
@@ -786,8 +786,8 @@ mod test {
         assert_eq!(check, v1 - rv2);
         assert_eq!(check, rv1 - v2);
 
-        let a1 = G2Affine::from(v1);
-        let a2 = G2Affine::from(v2);
+        let a1 = v1.to_affine();
+        let a2 = v2.to_affine();
         assert_eq!(check, a1 - a2);
         assert_eq!(check, a1 - v2);
         assert_eq!(check, v1 - a2);
@@ -847,5 +847,27 @@ mod test {
         let h2 = G2Projective::hash_to_curve(b"2", b"dst");
 
         assert_ne!(h1, h2);
+    }
+
+    #[test]
+    fn bytes() {
+        let mut rng = rand::thread_rng();
+        let v1 = G2Projective::random(&mut rng);
+
+        let v2 = G2Projective::from_bytes_unchecked(&v1.to_bytes()).unwrap();
+        assert_eq!(v1, v2);
+        let v2 = G2Projective::from_bytes(&v1.to_bytes()).unwrap();
+        assert_eq!(v1, v2);
+
+        let v2 = G2Projective::from_uncompressed_unchecked(&v1.to_uncompressed()).unwrap();
+        assert_eq!(v1, v2);
+        let v2 = G2Projective::from_uncompressed(&v1.to_uncompressed()).unwrap();
+        assert_eq!(v1, v2);
+
+        let a1 = v1.to_affine();
+        let a2 = G2Affine::from_bytes(&a1.to_bytes()).unwrap();
+        assert_eq!(a1, a2);
+        let v2 = G2Projective::from_bytes(&a1.to_bytes()).unwrap();
+        assert_eq!(v1, v2);
     }
 }

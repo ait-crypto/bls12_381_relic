@@ -536,4 +536,15 @@ mod test {
         assert_eq!(check, rv * rs);
         assert_eq!(check, v * rs);
     }
+
+    #[test]
+    fn bytes() {
+        let mut rng = rand::thread_rng();
+        let v1 = Gt::random(&mut rng);
+
+        let v2 = Gt::from_bytes_unchecked(&v1.to_bytes()).unwrap();
+        assert_eq!(v1, v2);
+        let v2 = Gt::from_bytes(&v1.to_bytes()).unwrap();
+        assert_eq!(v1, v2);
+    }
 }
