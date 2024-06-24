@@ -387,23 +387,17 @@ impl GroupEncoding for Gt {
 
     fn from_bytes(bytes: &Self::Repr) -> CtOption<Self> {
         let mut wrapper = new_wrapper();
-        if unsafe { wrapper_gt_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK {
-            CtOption::new(
-                Self(wrapper),
-                Choice::from(unsafe { wrapper_gt_is_valid(&wrapper) } as u8),
-            )
-        } else {
-            CtOption::new(Self(wrapper), 0.into())
-        }
+        let is_valid = unsafe { wrapper_gt_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) }
+            == RLC_OK
+            && unsafe { wrapper_gt_is_valid(&wrapper) };
+        CtOption::new(Self(wrapper), (is_valid as u8).into())
     }
 
     fn from_bytes_unchecked(bytes: &Self::Repr) -> CtOption<Self> {
         let mut wrapper = new_wrapper();
-        if unsafe { wrapper_gt_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK {
-            CtOption::new(Self(wrapper), 1.into())
-        } else {
-            CtOption::new(Self(wrapper), 0.into())
-        }
+        let is_valid =
+            unsafe { wrapper_gt_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK;
+        CtOption::new(Self(wrapper), (is_valid as u8).into())
     }
 
     #[inline]
@@ -417,23 +411,17 @@ impl UncompressedEncoding for Gt {
 
     fn from_uncompressed(bytes: &Self::Uncompressed) -> CtOption<Self> {
         let mut wrapper = new_wrapper();
-        if unsafe { wrapper_gt_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK {
-            CtOption::new(
-                Self(wrapper),
-                Choice::from(unsafe { wrapper_gt_is_valid(&wrapper) } as u8),
-            )
-        } else {
-            CtOption::new(Self(wrapper), 0.into())
-        }
+        let is_valid = unsafe { wrapper_gt_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) }
+            == RLC_OK
+            && unsafe { wrapper_gt_is_valid(&wrapper) };
+        CtOption::new(Self(wrapper), (is_valid as u8).into())
     }
 
     fn from_uncompressed_unchecked(bytes: &Self::Uncompressed) -> CtOption<Self> {
         let mut wrapper = new_wrapper();
-        if unsafe { wrapper_gt_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK {
-            CtOption::new(Self(wrapper), 1.into())
-        } else {
-            CtOption::new(Self(wrapper), 0.into())
-        }
+        let is_valid =
+            unsafe { wrapper_gt_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK;
+        CtOption::new(Self(wrapper), (is_valid as u8).into())
     }
 
     fn to_uncompressed(&self) -> Self::Uncompressed {
