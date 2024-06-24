@@ -13,14 +13,13 @@ use generic_array::{
 use librelic_sys::{
     wrapper_gt_add, wrapper_gt_add_assign, wrapper_gt_double, wrapper_gt_generator,
     wrapper_gt_init, wrapper_gt_is_equal, wrapper_gt_is_neutral, wrapper_gt_is_valid,
-    wrapper_gt_mul, wrapper_gt_mul_assign, wrapper_gt_neg, wrapper_gt_neutral, wrapper_gt_rand,
-    wrapper_gt_read_bin, wrapper_gt_sub, wrapper_gt_sub_assign, wrapper_gt_t, wrapper_gt_write_bin,
-    RLC_OK,
+    wrapper_gt_mul, wrapper_gt_mul_assign, wrapper_gt_neg, wrapper_gt_neutral, wrapper_gt_read_bin,
+    wrapper_gt_sub, wrapper_gt_sub_assign, wrapper_gt_t, wrapper_gt_write_bin, RLC_OK,
 };
 use pairing::group::{prime::PrimeGroup, Group, GroupEncoding, UncompressedEncoding};
 use subtle::{Choice, CtOption};
 
-use crate::{Error, Scalar};
+use crate::{pair, Error, G1Projective, G2Projective, Scalar};
 use rand_core::RngCore;
 
 type CompressedSize = U384;
@@ -191,33 +190,31 @@ impl TryFrom<&[u8]> for Gt {
     }
 }
 
-impl Add for Gt {
-    type Output = Gt;
+impl<G> Add<G> for Gt
+where
+    G: AsRef<Self>,
+{
+    type Output = Self;
 
     #[inline]
-    fn add(mut self, rhs: Self) -> Self::Output {
+    fn add(mut self, rhs: G) -> Self::Output {
+        let rhs = rhs.as_ref();
         unsafe {
-            wrapper_gt_add_assign(&mut self.0, &rhs.into());
+            wrapper_gt_add_assign(&mut self.0, &rhs.0);
         }
         self
     }
 }
 
-impl Add<&Gt> for Gt {
+impl<G> Add<G> for &Gt
+where
+    G: AsRef<Gt>,
+{
     type Output = Gt;
 
     #[inline]
-    fn add(mut self, rhs: &Self) -> Self::Output {
-        unsafe { wrapper_gt_add_assign(&mut self.0, &rhs.0) };
-        self
-    }
-}
-
-impl Add for &Gt {
-    type Output = Gt;
-
-    #[inline]
-    fn add(self, rhs: Self) -> Self::Output {
+    fn add(self, rhs: G) -> Self::Output {
+        let rhs = rhs.as_ref();
         let mut ret = new_wrapper();
         unsafe {
             wrapper_gt_add(&mut ret, &self.0, &rhs.0);
@@ -226,26 +223,16 @@ impl Add for &Gt {
     }
 }
 
-impl Add<Gt> for &Gt {
-    type Output = Gt;
-
+impl<G> AddAssign<G> for Gt
+where
+    G: AsRef<Gt>,
+{
     #[inline]
-    fn add(self, rhs: Gt) -> Self::Output {
-        rhs + self
-    }
-}
-
-impl AddAssign for Gt {
-    #[inline]
-    fn add_assign(&mut self, rhs: Self) {
-        unsafe { wrapper_gt_add_assign(&mut self.0, &rhs.0) };
-    }
-}
-
-impl AddAssign<&Gt> for Gt {
-    #[inline]
-    fn add_assign(&mut self, rhs: &Self) {
-        unsafe { wrapper_gt_add_assign(&mut self.0, &rhs.0) };
+    fn add_assign(&mut self, rhs: G) {
+        let rhs = rhs.as_ref();
+        unsafe {
+            wrapper_gt_add_assign(&mut self.0, &rhs.0);
+        }
     }
 }
 
@@ -274,11 +261,15 @@ impl Neg for &Gt {
     }
 }
 
-impl Sub for Gt {
-    type Output = Gt;
+impl<G> Sub<G> for Gt
+where
+    G: AsRef<Self>,
+{
+    type Output = Self;
 
     #[inline]
-    fn sub(mut self, rhs: Self) -> Self::Output {
+    fn sub(mut self, rhs: G) -> Self::Output {
+        let rhs = rhs.as_ref();
         unsafe {
             wrapper_gt_sub_assign(&mut self.0, &rhs.0);
         }
@@ -286,23 +277,15 @@ impl Sub for Gt {
     }
 }
 
-impl Sub<&Gt> for Gt {
+impl<G> Sub<G> for &Gt
+where
+    G: AsRef<Gt>,
+{
     type Output = Gt;
 
     #[inline]
-    fn sub(mut self, rhs: &Self) -> Self::Output {
-        unsafe {
-            wrapper_gt_sub_assign(&mut self.0, &rhs.0);
-        }
-        self
-    }
-}
-
-impl Sub for &Gt {
-    type Output = Gt;
-
-    #[inline]
-    fn sub(self, rhs: Self) -> Self::Output {
+    fn sub(self, rhs: G) -> Self::Output {
+        let rhs = rhs.as_ref();
         let mut ret = new_wrapper();
         unsafe {
             wrapper_gt_sub(&mut ret, &self.0, &rhs.0);
@@ -311,59 +294,30 @@ impl Sub for &Gt {
     }
 }
 
-impl Sub<Gt> for &Gt {
-    type Output = Gt;
-
+impl<G> SubAssign<G> for Gt
+where
+    G: AsRef<Self>,
+{
     #[inline]
-    fn sub(self, rhs: Gt) -> Self::Output {
-        let mut ret = new_wrapper();
-        unsafe {
-            wrapper_gt_sub(&mut ret, &self.0, &rhs.0);
-        }
-        ret.into()
-    }
-}
-
-impl SubAssign for Gt {
-    #[inline]
-    fn sub_assign(&mut self, rhs: Self) {
+    fn sub_assign(&mut self, rhs: G) {
+        let rhs = rhs.as_ref();
         unsafe {
             wrapper_gt_sub_assign(&mut self.0, &rhs.0);
         }
     }
 }
 
-impl SubAssign<&Gt> for Gt {
-    #[inline]
-    fn sub_assign(&mut self, rhs: &Self) {
-        unsafe {
-            wrapper_gt_sub_assign(&mut self.0, &rhs.0);
-        }
-    }
-}
-
-impl Sum for Gt {
-    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+impl<G> Sum<G> for Gt
+where
+    G: AsRef<Self>,
+{
+    fn sum<I: Iterator<Item = G>>(iter: I) -> Self {
         let mut start = new_wrapper();
         unsafe {
             wrapper_gt_neutral(&mut start);
         }
         Self(iter.fold(start, |mut sum, v| {
-            unsafe {
-                wrapper_gt_add_assign(&mut sum, &v.0);
-            }
-            sum
-        }))
-    }
-}
-
-impl<'a> Sum<&'a Gt> for Gt {
-    fn sum<I: Iterator<Item = &'a Self>>(iter: I) -> Self {
-        let mut start = new_wrapper();
-        unsafe {
-            wrapper_gt_neutral(&mut start);
-        }
-        Self(iter.fold(start, |mut sum, v| {
+            let v = v.as_ref();
             unsafe {
                 wrapper_gt_add_assign(&mut sum, &v.0);
             }
@@ -374,19 +328,15 @@ impl<'a> Sum<&'a Gt> for Gt {
 
 // TODO: Scalar * G!
 
-impl Mul<Scalar> for Gt {
-    type Output = Gt;
+impl<S> Mul<S> for Gt
+where
+    S: AsRef<Scalar>,
+{
+    type Output = Self;
 
     #[inline]
-    fn mul(self, rhs: Scalar) -> Self::Output {
-        self * &rhs
-    }
-}
-
-impl Mul<&Scalar> for Gt {
-    type Output = Gt;
-
-    fn mul(mut self, rhs: &Scalar) -> Self::Output {
+    fn mul(mut self, rhs: S) -> Self::Output {
+        let rhs = rhs.as_ref();
         unsafe {
             wrapper_gt_mul_assign(&mut self.0, &rhs.0);
         }
@@ -394,10 +344,14 @@ impl Mul<&Scalar> for Gt {
     }
 }
 
-impl Mul<Scalar> for &Gt {
+impl<S> Mul<S> for &Gt
+where
+    S: AsRef<Scalar>,
+{
     type Output = Gt;
 
-    fn mul(self, rhs: Scalar) -> Self::Output {
+    fn mul(self, rhs: S) -> Self::Output {
+        let rhs = rhs.as_ref();
         let mut gt = new_wrapper();
         unsafe {
             wrapper_gt_mul(&mut gt, &self.0, &rhs.0);
@@ -406,27 +360,13 @@ impl Mul<Scalar> for &Gt {
     }
 }
 
-impl Mul<&Scalar> for &Gt {
-    type Output = Gt;
-
-    fn mul(self, rhs: &Scalar) -> Self::Output {
-        let mut gt = new_wrapper();
-        unsafe {
-            wrapper_gt_mul(&mut gt, &self.0, &rhs.0);
-        }
-        Gt(gt)
-    }
-}
-
-impl MulAssign<Scalar> for Gt {
+impl<S> MulAssign<S> for Gt
+where
+    S: AsRef<Scalar>,
+{
     #[inline]
-    fn mul_assign(&mut self, rhs: Scalar) {
-        *self *= &rhs;
-    }
-}
-
-impl MulAssign<&Scalar> for Gt {
-    fn mul_assign(&mut self, rhs: &Scalar) {
+    fn mul_assign(&mut self, rhs: S) {
+        let rhs = rhs.as_ref();
         unsafe {
             wrapper_gt_mul_assign(&mut self.0, &rhs.0);
         }
@@ -504,12 +444,11 @@ impl UncompressedEncoding for Gt {
 impl Group for Gt {
     type Scalar = Scalar;
 
-    fn random(_rng: impl RngCore) -> Self {
-        let mut gt = new_wrapper();
-        unsafe {
-            wrapper_gt_rand(&mut gt);
-        }
-        Self(gt)
+    fn random(mut rng: impl RngCore) -> Self {
+        pair(
+            G1Projective::random(&mut rng),
+            G2Projective::random(&mut rng),
+        )
     }
 
     #[inline]
@@ -545,6 +484,8 @@ impl PrimeGroup for Gt {}
 
 #[cfg(test)]
 mod test {
+    use pairing::group::ff::Field;
+
     use super::*;
 
     #[test]
@@ -559,6 +500,40 @@ mod test {
         let mut rng = rand::thread_rng();
         let v1 = Gt::random(&mut rng);
         let v2 = Gt::random(&mut rng);
-        assert_eq!(v1 + v2, v2 + v1);
+        let check = v1 + v2;
+        assert_eq!(check, v2 + v1);
+
+        let rv1 = &v1;
+        let rv2 = &v2;
+        assert_eq!(check, v1 + rv2);
+        assert_eq!(check, rv1 + v2);
+    }
+
+    #[test]
+    fn sub() {
+        let mut rng = rand::thread_rng();
+        let v1 = Gt::random(&mut rng);
+        let v2 = Gt::random(&mut rng);
+        assert_eq!(v1 - v1, Gt::identity());
+        let check = v1 - v2;
+
+        let rv1 = &v1;
+        let rv2 = &v2;
+        assert_eq!(check, v1 - rv2);
+        assert_eq!(check, rv1 - v2);
+    }
+
+    #[test]
+    fn mul() {
+        let mut rng = rand::thread_rng();
+        let v = Gt::random(&mut rng);
+        let s = Scalar::random(&mut rng);
+        let check = v * s;
+
+        let rv = &v;
+        let rs = &s;
+        assert_eq!(check, rv * s);
+        assert_eq!(check, rv * rs);
+        assert_eq!(check, v * rs);
     }
 }

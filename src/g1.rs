@@ -215,34 +215,32 @@ impl TryFrom<&[u8]> for G1Projective {
     }
 }
 
-impl Add for G1Projective {
-    type Output = G1Projective;
+impl<G> Add<G> for G1Projective
+where
+    G: AsRef<Self>,
+{
+    type Output = Self;
 
     #[inline]
-    fn add(mut self, rhs: Self) -> Self::Output {
+    fn add(mut self, rhs: G) -> Self::Output {
+        let rhs = rhs.as_ref();
         unsafe {
-            wrapper_g1_add_assign(&mut self.0, &rhs.into());
+            wrapper_g1_add_assign(&mut self.0, &rhs.0);
         }
         self
     }
 }
 
-impl Add<&G1Projective> for G1Projective {
+impl<G> Add<G> for &G1Projective
+where
+    G: AsRef<G1Projective>,
+{
     type Output = G1Projective;
 
     #[inline]
-    fn add(mut self, rhs: &Self) -> Self::Output {
-        unsafe { wrapper_g1_add_assign(&mut self.0, &rhs.0) };
-        self
-    }
-}
-
-impl Add for &G1Projective {
-    type Output = G1Projective;
-
-    #[inline]
-    fn add(self, rhs: Self) -> Self::Output {
+    fn add(self, rhs: G) -> Self::Output {
         let mut ret = new_wrapper();
+        let rhs = rhs.as_ref();
         unsafe {
             wrapper_g1_add(&mut ret, &self.0, &rhs.0);
         }
@@ -250,26 +248,16 @@ impl Add for &G1Projective {
     }
 }
 
-impl Add<G1Projective> for &G1Projective {
-    type Output = G1Projective;
-
+impl<G> AddAssign<G> for G1Projective
+where
+    G: AsRef<G1Projective>,
+{
     #[inline]
-    fn add(self, rhs: G1Projective) -> Self::Output {
-        rhs + self
-    }
-}
-
-impl AddAssign for G1Projective {
-    #[inline]
-    fn add_assign(&mut self, rhs: Self) {
-        unsafe { wrapper_g1_add_assign(&mut self.0, &rhs.0) };
-    }
-}
-
-impl AddAssign<&G1Projective> for G1Projective {
-    #[inline]
-    fn add_assign(&mut self, rhs: &Self) {
-        unsafe { wrapper_g1_add_assign(&mut self.0, &rhs.0) };
+    fn add_assign(&mut self, rhs: G) {
+        let rhs = rhs.as_ref();
+        unsafe {
+            wrapper_g1_add_assign(&mut self.0, &rhs.0);
+        }
     }
 }
 
@@ -298,11 +286,15 @@ impl Neg for &G1Projective {
     }
 }
 
-impl Sub for G1Projective {
-    type Output = G1Projective;
+impl<G> Sub<G> for G1Projective
+where
+    G: AsRef<Self>,
+{
+    type Output = Self;
 
     #[inline]
-    fn sub(mut self, rhs: Self) -> Self::Output {
+    fn sub(mut self, rhs: G) -> Self::Output {
+        let rhs = rhs.as_ref();
         unsafe {
             wrapper_g1_sub_assign(&mut self.0, &rhs.into());
         }
@@ -310,61 +302,41 @@ impl Sub for G1Projective {
     }
 }
 
-impl Sub<&G1Projective> for G1Projective {
-    type Output = G1Projective;
-
-    #[inline]
-    fn sub(mut self, rhs: &Self) -> Self::Output {
-        unsafe { wrapper_g1_sub_assign(&mut self.0, &rhs.0) };
-        self
-    }
-}
-
-impl Sub for &G1Projective {
-    type Output = G1Projective;
-
-    #[inline]
-    fn sub(self, rhs: Self) -> Self::Output {
-        let mut ret = new_wrapper();
-        unsafe {
-            wrapper_g1_sub(&mut ret, &self.0, &rhs.0);
-        }
-        ret.into()
-    }
-}
-
-impl Sub<G1Projective> for &G1Projective {
-    type Output = G1Projective;
-
-    #[inline]
-    fn sub(self, rhs: G1Projective) -> Self::Output {
-        let mut ret = new_wrapper();
-        unsafe {
-            wrapper_g1_sub(&mut ret, &self.0, &rhs.0);
-        }
-        ret.into()
-    }
-}
-
-impl SubAssign for G1Projective {
-    #[inline]
-    fn sub_assign(&mut self, rhs: Self) {
-        unsafe { wrapper_g1_sub_assign(&mut self.0, &rhs.0) };
-    }
-}
-
-impl SubAssign<&G1Projective> for G1Projective {
-    #[inline]
-    fn sub_assign(&mut self, rhs: &Self) {
-        unsafe { wrapper_g1_sub_assign(&mut self.0, &rhs.0) };
-    }
-}
-
-impl<G1> Sum<G1> for G1Projective
+impl<G> Sub<G> for &G1Projective
 where
-    G1: AsRef<G1Projective>,
+    G: AsRef<G1Projective>,
 {
-    fn sum<I: Iterator<Item = G1>>(iter: I) -> Self {
+    type Output = G1Projective;
+
+    #[inline]
+    fn sub(self, rhs: G) -> Self::Output {
+        let mut ret = new_wrapper();
+        let rhs = rhs.as_ref();
+        unsafe {
+            wrapper_g1_sub(&mut ret, &self.0, &rhs.0);
+        }
+        ret.into()
+    }
+}
+
+impl<G> SubAssign<G> for G1Projective
+where
+    G: AsRef<Self>,
+{
+    #[inline]
+    fn sub_assign(&mut self, rhs: G) {
+        let rhs = rhs.as_ref();
+        unsafe {
+            wrapper_g1_sub_assign(&mut self.0, &rhs.0);
+        }
+    }
+}
+
+impl<G> Sum<G> for G1Projective
+where
+    G: AsRef<Self>,
+{
+    fn sum<I: Iterator<Item = G>>(iter: I) -> Self {
         let mut start = new_wrapper();
         unsafe {
             wrapper_g1_neutral(&mut start);
@@ -646,70 +618,6 @@ impl PrimeCurve for G1Projective {
     type Affine = Affine<Self>;
 }
 
-impl Add<Affine<G1Projective>> for G1Projective {
-    type Output = G1Projective;
-
-    #[inline]
-    fn add(self, rhs: Affine<G1Projective>) -> Self::Output {
-        self + rhs.0
-    }
-}
-
-impl Add<&Affine<G1Projective>> for G1Projective {
-    type Output = G1Projective;
-
-    #[inline]
-    fn add(self, rhs: &Affine<G1Projective>) -> Self::Output {
-        self + rhs.0
-    }
-}
-
-impl Sub<Affine<G1Projective>> for G1Projective {
-    type Output = G1Projective;
-
-    #[inline]
-    fn sub(self, rhs: Affine<G1Projective>) -> Self::Output {
-        self - rhs.0
-    }
-}
-
-impl Sub<&Affine<G1Projective>> for G1Projective {
-    type Output = G1Projective;
-
-    #[inline]
-    fn sub(self, rhs: &Affine<G1Projective>) -> Self::Output {
-        self - rhs.0
-    }
-}
-
-impl AddAssign<Affine<G1Projective>> for G1Projective {
-    #[inline]
-    fn add_assign(&mut self, rhs: Affine<G1Projective>) {
-        *self += rhs.0;
-    }
-}
-
-impl AddAssign<&Affine<G1Projective>> for G1Projective {
-    #[inline]
-    fn add_assign(&mut self, rhs: &Affine<G1Projective>) {
-        *self += rhs.0;
-    }
-}
-
-impl SubAssign<Affine<G1Projective>> for G1Projective {
-    #[inline]
-    fn sub_assign(&mut self, rhs: Affine<G1Projective>) {
-        *self -= rhs.0;
-    }
-}
-
-impl SubAssign<&Affine<G1Projective>> for G1Projective {
-    #[inline]
-    fn sub_assign(&mut self, rhs: &Affine<G1Projective>) {
-        *self -= rhs.0;
-    }
-}
-
 impl From<Affine<G1Projective>> for G1Projective {
     #[inline]
     fn from(value: Affine<G1Projective>) -> Self {
@@ -840,7 +748,80 @@ mod test {
         let mut rng = rand::thread_rng();
         let v1 = G1Projective::random(&mut rng);
         let v2 = G1Projective::random(&mut rng);
-        assert_eq!(v1 + v2, v2 + v1);
+        let check = v1 + v2;
+        assert_eq!(check, v2 + v1);
+
+        let rv1 = &v1;
+        let rv2 = &v2;
+        assert_eq!(check, v1 + rv2);
+        assert_eq!(check, rv1 + v2);
+
+        let a1 = G1Affine::from(v1);
+        let a2 = G1Affine::from(v2);
+        assert_eq!(check, a1 + a2);
+        assert_eq!(check, a1 + v2);
+        assert_eq!(check, v1 + a2);
+        assert_eq!(check, a1 + rv2);
+        assert_eq!(check, rv1 + a2);
+
+        let ra1 = &a1;
+        let ra2 = &a2;
+        assert_eq!(check, ra1 + ra2);
+        assert_eq!(check, ra1 + v2);
+        assert_eq!(check, v1 + ra2);
+        assert_eq!(check, ra1 + rv2);
+        assert_eq!(check, rv1 + ra2);
+    }
+
+    #[test]
+    fn sub() {
+        let mut rng = rand::thread_rng();
+        let v1 = G1Projective::random(&mut rng);
+        let v2 = G1Projective::random(&mut rng);
+        assert_eq!(v1 - v1, G1Projective::identity());
+        let check = v1 - v2;
+
+        let rv1 = &v1;
+        let rv2 = &v2;
+        assert_eq!(check, v1 - rv2);
+        assert_eq!(check, rv1 - v2);
+
+        let a1 = G1Affine::from(v1);
+        let a2 = G1Affine::from(v2);
+        assert_eq!(check, a1 - a2);
+        assert_eq!(check, a1 - v2);
+        assert_eq!(check, v1 - a2);
+        assert_eq!(check, a1 - rv2);
+        assert_eq!(check, rv1 - a2);
+
+        let ra1 = &a1;
+        let ra2 = &a2;
+        assert_eq!(check, ra1 - ra2);
+        assert_eq!(check, ra1 - v2);
+        assert_eq!(check, v1 - ra2);
+        assert_eq!(check, ra1 - rv2);
+        assert_eq!(check, rv1 - ra2);
+    }
+
+    #[test]
+    fn mul() {
+        let mut rng = rand::thread_rng();
+        let v = G1Projective::random(&mut rng);
+        let s = Scalar::random(&mut rng);
+        let check = v * s;
+
+        let rv = &v;
+        let rs = &s;
+        assert_eq!(check, rv * s);
+        assert_eq!(check, rv * rs);
+        assert_eq!(check, v * rs);
+
+        let a = G1Affine::from(v);
+        let ra = &a;
+        assert_eq!(check, a * s);
+        assert_eq!(check, ra * s);
+        assert_eq!(check, ra * rs);
+        assert_eq!(check, a * rs);
     }
 
     #[test]

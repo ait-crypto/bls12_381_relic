@@ -1,4 +1,4 @@
-use core::ops::{Add, AddAssign, Mul, Neg, Sub, SubAssign};
+use core::ops::{Add, Mul, Neg, Sub};
 
 use pairing::group::{
     prime::{PrimeCurve, PrimeCurveAffine},
@@ -21,46 +21,25 @@ impl<G> AsRef<G> for Affine<G> {
     }
 }
 
-impl<G> Add for Affine<G>
+impl<G, Gp> Add<Gp> for Affine<G>
 where
-    G: Add<Output = G>,
+    G: Add<Gp, Output = G>,
 {
-    type Output = Self;
+    type Output = G;
 
-    fn add(self, rhs: Self) -> Self::Output {
-        Self(self.0 + rhs.0)
+    fn add(self, rhs: Gp) -> Self::Output {
+        self.0 + rhs
     }
 }
 
-impl<G> Add<&Affine<G>> for Affine<G>
+impl<'a, G, Gp> Add<Gp> for &'a Affine<G>
 where
-    for<'a> G: Add<&'a G, Output = G>,
+    &'a G: Add<Gp, Output = G>,
 {
-    type Output = Self;
+    type Output = G;
 
-    #[inline]
-    fn add(self, rhs: &Self) -> Self::Output {
-        Self(self.0 + &rhs.0)
-    }
-}
-
-impl<G> AddAssign for Affine<G>
-where
-    G: AddAssign,
-{
-    #[inline]
-    fn add_assign(&mut self, rhs: Self) {
-        self.0 += rhs.0;
-    }
-}
-
-impl<G> AddAssign<&Affine<G>> for Affine<G>
-where
-    for<'a> G: AddAssign<&'a G>,
-{
-    #[inline]
-    fn add_assign(&mut self, rhs: &Self) {
-        self.0 += &rhs.0;
+    fn add(self, rhs: Gp) -> Self::Output {
+        &self.0 + rhs
     }
 }
 
@@ -76,94 +55,49 @@ where
     }
 }
 
-impl<G> Sub for Affine<G>
+impl<G, Gp> Sub<Gp> for Affine<G>
 where
-    G: Sub<Output = G>,
-{
-    type Output = Self;
-
-    #[inline]
-    fn sub(self, rhs: Self) -> Self::Output {
-        Self(self.0 - rhs.0)
-    }
-}
-
-impl<G> Sub<&Affine<G>> for Affine<G>
-where
-    for<'a> G: Sub<&'a G, Output = G>,
-{
-    type Output = Self;
-
-    #[inline]
-    fn sub(self, rhs: &Self) -> Self::Output {
-        Self(self.0 - &rhs.0)
-    }
-}
-
-impl<G> SubAssign for Affine<G>
-where
-    G: SubAssign,
-{
-    #[inline]
-    fn sub_assign(&mut self, rhs: Self) {
-        self.0 -= rhs.0;
-    }
-}
-
-impl<G> SubAssign<&Affine<G>> for Affine<G>
-where
-    for<'a> G: SubAssign<&'a G>,
-{
-    #[inline]
-    fn sub_assign(&mut self, rhs: &Self) {
-        self.0 -= &rhs.0;
-    }
-}
-
-impl<G> Mul<Scalar> for Affine<G>
-where
-    G: Mul<Scalar, Output = G>,
+    G: Sub<Gp, Output = G>,
 {
     type Output = G;
 
     #[inline]
-    fn mul(self, rhs: Scalar) -> Self::Output {
+    fn sub(self, rhs: Gp) -> Self::Output {
+        self.0 - rhs
+    }
+}
+
+impl<'a, G, Gp> Sub<Gp> for &'a Affine<G>
+where
+    &'a G: Sub<Gp, Output = G>,
+{
+    type Output = G;
+
+    fn sub(self, rhs: Gp) -> Self::Output {
+        &self.0 - rhs
+    }
+}
+
+impl<S, G> Mul<S> for Affine<G>
+where
+    G: Mul<S, Output = G>,
+{
+    type Output = G;
+
+    #[inline]
+    fn mul(self, rhs: S) -> Self::Output {
         self.0 * rhs
     }
 }
 
-impl<'a, G> Mul<&'a Scalar> for Affine<G>
+impl<'a, S, G> Mul<S> for &'a Affine<G>
 where
-    G: Mul<&'a Scalar, Output = G>,
+    &'a G: Mul<S, Output = G>,
 {
     type Output = G;
 
     #[inline]
-    fn mul(self, rhs: &'a Scalar) -> Self::Output {
-        self.0 * rhs
-    }
-}
-
-impl<'a, 'b, G> Mul<&'b Scalar> for &'a Affine<G>
-where
-    &'a G: Mul<&'b Scalar, Output = G>,
-{
-    type Output = G;
-
-    #[inline]
-    fn mul(self, rhs: &'b Scalar) -> Self::Output {
-        &self.0 * rhs
-    }
-}
-
-impl<'a, G> Mul<Scalar> for &'a Affine<G>
-where
-    &'a G: Mul<Scalar, Output = G>,
-{
-    type Output = G;
-
-    #[inline]
-    fn mul(self, rhs: Scalar) -> Self::Output {
+    fn mul(self, rhs: S) -> Self::Output {
         &self.0 * rhs
     }
 }
