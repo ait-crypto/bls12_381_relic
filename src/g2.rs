@@ -444,23 +444,17 @@ impl GroupEncoding for G2Projective {
 
     fn from_bytes(bytes: &Self::Repr) -> CtOption<Self> {
         let mut wrapper = new_wrapper();
-        if unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK {
-            CtOption::new(
-                Self(wrapper),
-                Choice::from(unsafe { wrapper_g2_is_valid(&wrapper) } as u8),
-            )
-        } else {
-            CtOption::new(Self(wrapper), 0.into())
-        }
+        let is_valid = unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) }
+            == RLC_OK
+            && unsafe { wrapper_g2_is_valid(&wrapper) };
+        CtOption::new(Self(wrapper), (is_valid as u8).into())
     }
 
     fn from_bytes_unchecked(bytes: &Self::Repr) -> CtOption<Self> {
         let mut wrapper = new_wrapper();
-        if unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK {
-            CtOption::new(Self(wrapper), 1.into())
-        } else {
-            CtOption::new(Self(wrapper), 0.into())
-        }
+        let is_valid =
+            unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK;
+        CtOption::new(Self(wrapper), (is_valid as u8).into())
     }
 
     fn to_bytes(&self) -> Self::Repr {
@@ -473,23 +467,17 @@ impl UncompressedEncoding for G2Projective {
 
     fn from_uncompressed(bytes: &Self::Uncompressed) -> CtOption<Self> {
         let mut wrapper = new_wrapper();
-        if unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK {
-            CtOption::new(
-                Self(wrapper),
-                Choice::from(unsafe { wrapper_g2_is_valid(&wrapper) } as u8),
-            )
-        } else {
-            CtOption::new(Self(wrapper), 0.into())
-        }
+        let is_valid = unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) }
+            == RLC_OK
+            && unsafe { wrapper_g2_is_valid(&wrapper) };
+        CtOption::new(Self(wrapper), (is_valid as u8).into())
     }
 
     fn from_uncompressed_unchecked(bytes: &Self::Uncompressed) -> CtOption<Self> {
         let mut wrapper = new_wrapper();
-        if unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK {
-            CtOption::new(Self(wrapper), 1.into())
-        } else {
-            CtOption::new(Self(wrapper), 0.into())
-        }
+        let is_valid =
+            unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK;
+        CtOption::new(Self(wrapper), (is_valid as u8).into())
     }
 
     fn to_uncompressed(&self) -> Self::Uncompressed {
@@ -667,23 +655,17 @@ impl GroupEncoding for Affine<G2Projective> {
 
     fn from_bytes(bytes: &Self::Repr) -> CtOption<Self> {
         let mut wrapper = new_wrapper();
-        if unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK {
-            CtOption::new(
-                Self(wrapper.into()),
-                Choice::from(unsafe { wrapper_g2_is_valid(&wrapper) } as u8),
-            )
-        } else {
-            CtOption::new(Self(wrapper.into()), 0.into())
-        }
+        let is_valid = unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) }
+            == RLC_OK
+            && unsafe { wrapper_g2_is_valid(&wrapper) };
+        CtOption::new(Self(wrapper.into()), (is_valid as u8).into())
     }
 
     fn from_bytes_unchecked(bytes: &Self::Repr) -> CtOption<Self> {
         let mut wrapper = new_wrapper();
-        if unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK {
-            CtOption::new(Self(wrapper.into()), 1.into())
-        } else {
-            CtOption::new(Self(wrapper.into()), 0.into())
-        }
+        let is_valid =
+            unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK;
+        CtOption::new(Self(wrapper.into()), (is_valid as u8).into())
     }
 
     #[inline]
@@ -697,23 +679,17 @@ impl UncompressedEncoding for Affine<G2Projective> {
 
     fn from_uncompressed(bytes: &Self::Uncompressed) -> CtOption<Self> {
         let mut wrapper = new_wrapper();
-        if unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK {
-            CtOption::new(
-                Self(wrapper.into()),
-                Choice::from(unsafe { wrapper_g2_is_valid(&wrapper) } as u8),
-            )
-        } else {
-            CtOption::new(Self(wrapper.into()), 0.into())
-        }
+        let is_valid = unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) }
+            == RLC_OK
+            && unsafe { wrapper_g2_is_valid(&wrapper) };
+        CtOption::new(Self(wrapper.into()), (is_valid as u8).into())
     }
 
     fn from_uncompressed_unchecked(bytes: &Self::Uncompressed) -> CtOption<Self> {
         let mut wrapper = new_wrapper();
-        if unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK {
-            CtOption::new(Self(wrapper.into()), 1.into())
-        } else {
-            CtOption::new(Self(wrapper.into()), 0.into())
-        }
+        let is_valid =
+            unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK;
+        CtOption::new(Self(wrapper.into()), (is_valid as u8).into())
     }
 
     fn to_uncompressed(&self) -> Self::Uncompressed {
