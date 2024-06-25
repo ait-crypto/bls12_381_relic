@@ -558,6 +558,9 @@ mod test {
         assert_eq!(check, rv * s);
         assert_eq!(check, rv * rs);
         assert_eq!(check, v * rs);
+        assert_eq!(check, s * rv);
+        assert_eq!(check, rs * rv);
+        assert_eq!(check, rs * v);
 
         let mut mv = v;
         mv *= s;

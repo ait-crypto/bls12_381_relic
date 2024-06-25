@@ -791,6 +791,9 @@ mod test {
         assert_eq!(check, rv * s);
         assert_eq!(check, rv * rs);
         assert_eq!(check, v * rs);
+        assert_eq!(check, s * rv);
+        assert_eq!(check, rs * rv);
+        assert_eq!(check, rs * v);
 
         let a = G2Affine::from(v);
         let ra = &a;
@@ -798,6 +801,10 @@ mod test {
         assert_eq!(check, ra * s);
         assert_eq!(check, ra * rs);
         assert_eq!(check, a * rs);
+        // assert_eq!(check, s * a);
+        // assert_eq!(check, rs * a);
+        // assert_eq!(check, rs * ra);
+        // assert_eq!(check, s * ra);
 
         let mut mv = v;
         mv *= s;
