@@ -523,6 +523,10 @@ mod test {
         assert_eq!(check, rv * s);
         assert_eq!(check, rv * rs);
         assert_eq!(check, v * rs);
+
+        let mut mv = v;
+        mv *= s;
+        assert_eq!(check, mv);
     }
 
     #[test]
