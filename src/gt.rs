@@ -326,8 +326,6 @@ where
     }
 }
 
-// TODO: Scalar * G!
-
 impl<S> Mul<S> for Gt
 where
     S: AsRef<Scalar>,
@@ -350,6 +348,7 @@ where
 {
     type Output = Gt;
 
+    #[inline]
     fn mul(self, rhs: S) -> Self::Output {
         let rhs = rhs.as_ref();
         let mut gt = new_wrapper();
@@ -357,6 +356,42 @@ where
             wrapper_gt_mul(&mut gt, &self.0, &rhs.0);
         }
         Gt(gt)
+    }
+}
+
+impl Mul<Gt> for Scalar {
+    type Output = Gt;
+
+    #[inline]
+    fn mul(self, rhs: Gt) -> Self::Output {
+        rhs * self
+    }
+}
+
+impl Mul<&Gt> for Scalar {
+    type Output = Gt;
+
+    #[inline]
+    fn mul(self, rhs: &Gt) -> Self::Output {
+        rhs * self
+    }
+}
+
+impl Mul<Gt> for &Scalar {
+    type Output = Gt;
+
+    #[inline]
+    fn mul(self, rhs: Gt) -> Self::Output {
+        rhs * self
+    }
+}
+
+impl Mul<&Gt> for &Scalar {
+    type Output = Gt;
+
+    #[inline]
+    fn mul(self, rhs: &Gt) -> Self::Output {
+        rhs * self
     }
 }
 
