@@ -4,18 +4,28 @@ use pairing::group::{
     prime::{PrimeCurve, PrimeCurveAffine},
     GroupEncoding,
 };
+use private::Sealed;
 use subtle::Choice;
 
 use crate::Scalar;
+
+pub(crate) mod private {
+    pub trait Sealed {}
+}
 
 /// Affine representation of curve points
 ///
 /// This is a fake "affine" representation since relic does not support them explicitly.
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 #[repr(transparent)]
-pub struct Affine<G>(pub(crate) G);
+pub struct Affine<G>(pub(crate) G)
+where
+    G: Sealed;
 
-impl<G> AsRef<G> for Affine<G> {
+impl<G> AsRef<G> for Affine<G>
+where
+    G: Sealed,
+{
     fn as_ref(&self) -> &G {
         &self.0
     }
@@ -23,6 +33,7 @@ impl<G> AsRef<G> for Affine<G> {
 
 impl<G, Gp> Add<Gp> for Affine<G>
 where
+    G: Sealed,
     G: Add<Gp, Output = G>,
 {
     type Output = G;
@@ -34,6 +45,7 @@ where
 
 impl<'a, G, Gp> Add<Gp> for &'a Affine<G>
 where
+    G: Sealed,
     &'a G: Add<Gp, Output = G>,
 {
     type Output = G;
@@ -45,6 +57,7 @@ where
 
 impl<G> Neg for Affine<G>
 where
+    G: Sealed,
     G: Neg<Output = G>,
 {
     type Output = Self;
@@ -57,6 +70,7 @@ where
 
 impl<G, Gp> Sub<Gp> for Affine<G>
 where
+    G: Sealed,
     G: Sub<Gp, Output = G>,
 {
     type Output = G;
@@ -69,6 +83,7 @@ where
 
 impl<'a, G, Gp> Sub<Gp> for &'a Affine<G>
 where
+    G: Sealed,
     &'a G: Sub<Gp, Output = G>,
 {
     type Output = G;
@@ -80,6 +95,7 @@ where
 
 impl<S, G> Mul<S> for Affine<G>
 where
+    G: Sealed,
     G: Mul<S, Output = G>,
 {
     type Output = G;
@@ -92,6 +108,7 @@ where
 
 impl<'a, S, G> Mul<S> for &'a Affine<G>
 where
+    G: Sealed,
     &'a G: Mul<S, Output = G>,
 {
     type Output = G;
@@ -104,6 +121,7 @@ where
 
 impl<G> PrimeCurveAffine for Affine<G>
 where
+    G: Sealed,
     G: PrimeCurve<Affine = Self, Scalar = Scalar>,
     Self: GroupEncoding,
 {

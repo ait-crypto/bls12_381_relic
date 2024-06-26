@@ -32,7 +32,7 @@ use pairing::group::{
 use rand_core::RngCore;
 use subtle::{Choice, CtOption};
 
-use crate::{Affine, Error, Scalar};
+use crate::{affine, Affine, Error, Scalar};
 
 type CompressedSize = U49;
 type UncompressedSize = U97;
@@ -588,6 +588,8 @@ where
 
 /// The affine representation of G1.
 pub type G1Affine = Affine<G1Projective>;
+
+impl affine::private::Sealed for G1Projective {}
 
 impl Curve for G1Projective {
     type AffineRepr = Affine<Self>;

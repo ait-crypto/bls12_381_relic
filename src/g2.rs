@@ -30,7 +30,7 @@ use pairing::group::{
 };
 use subtle::{Choice, CtOption};
 
-use crate::{Affine, Error, Scalar};
+use crate::{affine, Affine, Error, Scalar};
 use rand_core::RngCore;
 
 type CompressedSize = U97;
@@ -588,6 +588,8 @@ where
 
 /// The affine representation of G2.
 pub type G2Affine = Affine<G2Projective>;
+
+impl affine::private::Sealed for G2Projective {}
 
 impl Curve for G2Projective {
     type AffineRepr = Affine<Self>;
