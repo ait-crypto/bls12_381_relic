@@ -163,6 +163,7 @@ where
 #[cfg(feature = "zeroize")]
 impl<G> zeroize::Zeroize for Affine<G>
 where
+    G: Sealed,
     G: zeroize::Zeroize,
 {
     fn zeroize(&mut self) {
