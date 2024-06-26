@@ -1,3 +1,11 @@
+//! Affine representation of curve points
+//!
+//! Relic does not implement specific types or functions that make use of affine
+//! representations of group elements. Hence, this crate provides a generic
+//! wrapper around default representation whereas the elements are initially
+//! normalized. Whenever an operation is performed on the group elements, the
+//! default representation is returned as result.
+
 use core::ops::{Add, Mul, Neg, Sub};
 
 use pairing::group::{
@@ -10,6 +18,8 @@ use subtle::Choice;
 use crate::Scalar;
 
 pub(crate) mod private {
+    /// Internal trait to make instantiations of [super::Affine] impossible for
+    /// types other than [crate::G1Projective] and [crate::G2Projective].
     pub trait Sealed {}
 }
 
