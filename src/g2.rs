@@ -621,12 +621,18 @@ impl From<&Affine<G2Projective>> for G2Projective {
     }
 }
 
-impl From<G2Projective> for Affine<G2Projective> {
-    fn from(mut value: G2Projective) -> Self {
+impl From<wrapper_g2_t> for Affine<G2Projective> {
+    fn from(mut value: wrapper_g2_t) -> Self {
         unsafe {
-            wrapper_g2_norm(&mut value.0, &value.0);
+            wrapper_g2_norm(&mut value, &value);
         }
-        Self(value)
+        Self(G2Projective(value))
+    }
+}
+
+impl From<G2Projective> for Affine<G2Projective> {
+    fn from(value: G2Projective) -> Self {
+        Self::from(value.0)
     }
 }
 
@@ -660,14 +666,14 @@ impl GroupEncoding for Affine<G2Projective> {
         let is_valid = unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) }
             == RLC_OK
             && unsafe { wrapper_g2_is_valid(&wrapper) };
-        CtOption::new(Self(wrapper.into()), (is_valid as u8).into())
+        CtOption::new(Self::from(wrapper), (is_valid as u8).into())
     }
 
     fn from_bytes_unchecked(bytes: &Self::Repr) -> CtOption<Self> {
         let mut wrapper = new_wrapper();
         let is_valid =
             unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK;
-        CtOption::new(Self(wrapper.into()), (is_valid as u8).into())
+        CtOption::new(Self::from(wrapper), (is_valid as u8).into())
     }
 
     #[inline]
@@ -684,14 +690,14 @@ impl UncompressedEncoding for Affine<G2Projective> {
         let is_valid = unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) }
             == RLC_OK
             && unsafe { wrapper_g2_is_valid(&wrapper) };
-        CtOption::new(Self(wrapper.into()), (is_valid as u8).into())
+        CtOption::new(Self::from(wrapper), (is_valid as u8).into())
     }
 
     fn from_uncompressed_unchecked(bytes: &Self::Uncompressed) -> CtOption<Self> {
         let mut wrapper = new_wrapper();
         let is_valid =
             unsafe { wrapper_g2_read_bin(&mut wrapper, bytes.as_ptr(), bytes.len()) } == RLC_OK;
-        CtOption::new(Self(wrapper.into()), (is_valid as u8).into())
+        CtOption::new(Self::from(wrapper), (is_valid as u8).into())
     }
 
     fn to_uncompressed(&self) -> Self::Uncompressed {
