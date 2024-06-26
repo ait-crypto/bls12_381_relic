@@ -12,7 +12,6 @@ use pairing::group::{
     prime::{PrimeCurve, PrimeCurveAffine},
     GroupEncoding,
 };
-use private::Sealed;
 use subtle::Choice;
 
 use crate::Scalar;
@@ -30,11 +29,11 @@ pub(crate) mod private {
 #[repr(transparent)]
 pub struct Affine<G>(pub(crate) G)
 where
-    G: Sealed;
+    G: private::Sealed;
 
 impl<G> AsRef<G> for Affine<G>
 where
-    G: Sealed,
+    G: private::Sealed,
 {
     fn as_ref(&self) -> &G {
         &self.0
@@ -43,7 +42,7 @@ where
 
 impl<G, Gp> Add<Gp> for Affine<G>
 where
-    G: Sealed,
+    G: private::Sealed,
     G: Add<Gp, Output = G>,
 {
     type Output = G;
@@ -55,7 +54,7 @@ where
 
 impl<'a, G, Gp> Add<Gp> for &'a Affine<G>
 where
-    G: Sealed,
+    G: private::Sealed,
     &'a G: Add<Gp, Output = G>,
 {
     type Output = G;
@@ -67,7 +66,7 @@ where
 
 impl<G> Neg for Affine<G>
 where
-    G: Sealed,
+    G: private::Sealed,
     G: Neg<Output = G>,
 {
     type Output = Self;
@@ -80,7 +79,7 @@ where
 
 impl<G, Gp> Sub<Gp> for Affine<G>
 where
-    G: Sealed,
+    G: private::Sealed,
     G: Sub<Gp, Output = G>,
 {
     type Output = G;
@@ -93,7 +92,7 @@ where
 
 impl<'a, G, Gp> Sub<Gp> for &'a Affine<G>
 where
-    G: Sealed,
+    G: private::Sealed,
     &'a G: Sub<Gp, Output = G>,
 {
     type Output = G;
@@ -105,7 +104,7 @@ where
 
 impl<S, G> Mul<S> for Affine<G>
 where
-    G: Sealed,
+    G: private::Sealed,
     G: Mul<S, Output = G>,
 {
     type Output = G;
@@ -118,7 +117,7 @@ where
 
 impl<'a, S, G> Mul<S> for &'a Affine<G>
 where
-    G: Sealed,
+    G: private::Sealed,
     &'a G: Mul<S, Output = G>,
 {
     type Output = G;
@@ -131,7 +130,7 @@ where
 
 impl<G> PrimeCurveAffine for Affine<G>
 where
-    G: Sealed,
+    G: private::Sealed,
     G: PrimeCurve<Affine = Self, Scalar = Scalar>,
     Self: GroupEncoding,
 {
@@ -163,7 +162,7 @@ where
 #[cfg(feature = "zeroize")]
 impl<G> zeroize::Zeroize for Affine<G>
 where
-    G: Sealed,
+    G: private::Sealed,
     G: zeroize::Zeroize,
 {
     fn zeroize(&mut self) {
