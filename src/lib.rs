@@ -80,6 +80,8 @@ pub mod g1;
 pub mod g2;
 pub mod gt;
 pub mod scalar;
+#[cfg(feature = "serde")]
+mod serde_helpers;
 
 pub(crate) use affine::Affine;
 pub use engine::RelicEngine;

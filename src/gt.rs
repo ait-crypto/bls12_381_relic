@@ -514,6 +514,26 @@ impl zeroize::Zeroize for Gt {
     }
 }
 
+#[cfg(feature = "serde")]
+impl serde::Serialize for Gt {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        crate::serde_helpers::serialize(self, serializer)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for Gt {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        crate::serde_helpers::deserialize(deserializer)
+    }
+}
+
 #[cfg(test)]
 mod test {
     use pairing::group::ff::Field;
@@ -584,6 +604,17 @@ mod test {
         let v2 = Gt::from_bytes_unchecked(&v1.to_bytes()).unwrap();
         assert_eq!(v1, v2);
         let v2 = Gt::from_bytes(&v1.to_bytes()).unwrap();
+        assert_eq!(v1, v2);
+    }
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn serde_serialization() {
+        let mut rng = rand::thread_rng();
+        let v1 = Gt::random(&mut rng);
+
+        let bytes = bincode::serialize(&v1).unwrap();
+        let v2: Gt = bincode::deserialize(&bytes).unwrap();
         assert_eq!(v1, v2);
     }
 }

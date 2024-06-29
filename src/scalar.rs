@@ -512,6 +512,45 @@ impl zeroize::Zeroize for Scalar {
     }
 }
 
+#[cfg(feature = "serde")]
+impl serde::Serialize for Scalar {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        serializer.serialize_bytes(&self.to_bytes())
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for Scalar {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        use serde::de;
+
+        struct BytesVisitor;
+
+        impl<'de> de::Visitor<'de> for BytesVisitor {
+            type Value = Scalar;
+
+            fn expecting(&self, formatter: &mut core::fmt::Formatter) -> alloc::fmt::Result {
+                write!(formatter, "a byte-encoded Scalar")
+            }
+
+            fn visit_bytes<E>(self, v: &[u8]) -> Result<Self::Value, E>
+            where
+                E: de::Error,
+            {
+                Scalar::try_from(v).map_err(|_| E::invalid_value(de::Unexpected::Bytes(v), &self))
+            }
+        }
+
+        deserializer.deserialize_bytes(BytesVisitor)
+    }
+}
+
 #[cfg(test)]
 mod test {
     use librelic_sys::{wrapper_bn_one, wrapper_bn_zero};

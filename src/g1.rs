@@ -714,6 +714,26 @@ impl zeroize::Zeroize for G1Projective {
     }
 }
 
+#[cfg(feature = "serde")]
+impl serde::Serialize for G1Projective {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        crate::serde_helpers::serialize(self, serializer)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> serde::Deserialize<'de> for G1Projective {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        crate::serde_helpers::deserialize(deserializer)
+    }
+}
+
 #[cfg(test)]
 mod test {
     use pairing::group::ff::Field;
@@ -861,5 +881,23 @@ mod test {
         assert_eq!(a1, a2);
         let v2 = G1Projective::from_bytes(&a1.to_bytes()).unwrap();
         assert_eq!(v1, v2);
+    }
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn serde_serialization() {
+        let mut rng = rand::thread_rng();
+        let v1 = G1Projective::random(&mut rng);
+
+        let bytes = bincode::serialize(&v1).unwrap();
+        let v2: G1Projective = bincode::deserialize(&bytes).unwrap();
+        assert_eq!(v1, v2);
+
+        let a1 = G1Affine::from(v1);
+        let a2: G1Affine = bincode::deserialize(&bytes).unwrap();
+        assert_eq!(a1, a2);
+
+        let abytes = bincode::serialize(&a1).unwrap();
+        assert_eq!(bytes, abytes);
     }
 }

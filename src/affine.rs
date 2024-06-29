@@ -169,3 +169,32 @@ where
         self.0.zeroize();
     }
 }
+
+#[cfg(feature = "serde")]
+impl<G> serde::Serialize for Affine<G>
+where
+    G: private::Sealed,
+    Self: GroupEncoding,
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        crate::serde_helpers::serialize(self, serializer)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de, G, N> serde::Deserialize<'de> for Affine<G>
+where
+    G: private::Sealed,
+    N: generic_array::ArrayLength,
+    Self: GroupEncoding<Repr = generic_array::GenericArray<u8, N>>,
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        crate::serde_helpers::deserialize(deserializer)
+    }
+}
