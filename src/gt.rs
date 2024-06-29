@@ -505,6 +505,15 @@ impl Group for Gt {
 
 impl PrimeGroup for Gt {}
 
+#[cfg(feature = "zeroize")]
+impl zeroize::Zeroize for Gt {
+    fn zeroize(&mut self) {
+        unsafe {
+            wrapper_gt_neutral(&mut self.0);
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use pairing::group::ff::Field;
