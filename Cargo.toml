@@ -28,7 +28,10 @@ serde = { version = "1", default-features = false, optional = true }
 rand = "0.8"
 signature = { version = "2.0", default-features = false }
 criterion = { version = "0.5", default-features = false }
-bls12_381 = { version = "0.8" }
+bls12_381 = { version = "0.8", default-features = false, features = [
+  "pairings",
+  "alloc",
+] }
 bincode = { version = "1", default-features = false }
 
 [features]
