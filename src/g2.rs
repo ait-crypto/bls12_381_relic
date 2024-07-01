@@ -488,10 +488,12 @@ impl UncompressedEncoding for G2Projective {
 impl Group for G2Projective {
     type Scalar = Scalar;
 
-    fn random(_rng: impl RngCore) -> Self {
+    fn random(mut rng: impl RngCore) -> Self {
         let mut g2 = new_wrapper();
+        let mut buf = [0u8; 64];
+        rng.fill_bytes(&mut buf);
         unsafe {
-            wrapper_g2_rand(&mut g2);
+            wrapper_g2_rand(&mut g2, buf.as_ptr(), buf.len());
         }
         Self(g2)
     }

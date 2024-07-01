@@ -9,6 +9,11 @@
 static bool core_init_run = false;
 static bn_t order;
 
+static const uint8_t RAND_DOMAIN_SEP[] = {
+    0x72, 0x61, 0x6e, 0x64, 0x72, 0x61, 0x6e, 0x64, 0x72, 0x61, 0x6e, 0x64, 0x72, 0x61, 0x6e, 0x64,
+    0x72, 0x61, 0x6e, 0x64, 0x72, 0x61, 0x6e, 0x64, 0x72, 0x61, 0x6e, 0x64, 0x72, 0x61, 0x6e, 0x64,
+};
+
 __attribute__((constructor)) static void init_relic(void) {
   if (!core_get()) {
     core_init();
@@ -259,9 +264,9 @@ void wrapper_g1_hash_to_curve(wrapper_g1_t* g1, const uint8_t* msg, size_t len, 
   }
 }
 
-void wrapper_g1_rand(wrapper_g1_t* g1) {
+void wrapper_g1_rand(wrapper_g1_t* g1, const uint8_t* seed, size_t len) {
   RLC_TRY {
-    g1_rand(*g1);
+    wrapper_g1_hash_to_curve(g1, seed, len, RAND_DOMAIN_SEP, sizeof(RAND_DOMAIN_SEP));
   }
   RLC_CATCH_ANY {
     assert(false);
@@ -423,9 +428,9 @@ void wrapper_g2_hash_to_curve(wrapper_g2_t* g2, const uint8_t* msg, size_t len, 
   }
 }
 
-void wrapper_g2_rand(wrapper_g2_t* g2) {
+void wrapper_g2_rand(wrapper_g2_t* g2, const uint8_t* seed, size_t len) {
   RLC_TRY {
-    g2_rand(*g2);
+    wrapper_g2_hash_to_curve(g2, seed, len, RAND_DOMAIN_SEP, sizeof(RAND_DOMAIN_SEP));
   }
   RLC_CATCH_ANY {
     assert(false);
