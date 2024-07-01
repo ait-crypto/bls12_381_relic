@@ -70,7 +70,7 @@ where
     });
 
     c.bench_function(&format!("{}: scalar multiplication", name), move |b| {
-        b.iter(|| black_box(black_box(a) * &black_box(s)))
+        b.iter(|| black_box(black_box(a) * black_box(s)))
     });
 }
 
