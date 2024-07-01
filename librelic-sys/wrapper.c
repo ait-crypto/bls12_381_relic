@@ -264,15 +264,6 @@ void wrapper_g1_hash_to_curve(wrapper_g1_t* g1, const uint8_t* msg, size_t len, 
   }
 }
 
-void wrapper_g1_rand(wrapper_g1_t* g1, const uint8_t* seed, size_t len) {
-  RLC_TRY {
-    wrapper_g1_hash_to_curve(g1, seed, len, RAND_DOMAIN_SEP, sizeof(RAND_DOMAIN_SEP));
-  }
-  RLC_CATCH_ANY {
-    assert(false);
-  }
-}
-
 void wrapper_g1_add_assign(wrapper_g1_t* dst, const wrapper_g1_t* rhs) {
   RLC_TRY {
     g1_add(*dst, *dst, *rhs);
@@ -422,15 +413,6 @@ void wrapper_g2_generator(wrapper_g2_t* g2) {
 void wrapper_g2_hash_to_curve(wrapper_g2_t* g2, const uint8_t* msg, size_t len, const uint8_t* dst, size_t dst_len) {
   RLC_TRY {
     ep2_map_dst(*g2, msg, len, dst, dst_len);
-  }
-  RLC_CATCH_ANY {
-    assert(false);
-  }
-}
-
-void wrapper_g2_rand(wrapper_g2_t* g2, const uint8_t* seed, size_t len) {
-  RLC_TRY {
-    wrapper_g2_hash_to_curve(g2, seed, len, RAND_DOMAIN_SEP, sizeof(RAND_DOMAIN_SEP));
   }
   RLC_CATCH_ANY {
     assert(false);

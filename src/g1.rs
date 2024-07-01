@@ -21,8 +21,8 @@ use librelic_sys::{
     wrapper_g1_add, wrapper_g1_add_assign, wrapper_g1_double, wrapper_g1_generator,
     wrapper_g1_hash_to_curve, wrapper_g1_init, wrapper_g1_is_equal, wrapper_g1_is_neutral,
     wrapper_g1_is_valid, wrapper_g1_mul, wrapper_g1_mul_assign, wrapper_g1_neg, wrapper_g1_neutral,
-    wrapper_g1_norm, wrapper_g1_rand, wrapper_g1_read_bin, wrapper_g1_sub, wrapper_g1_sub_assign,
-    wrapper_g1_t, wrapper_g1_write_bin, RLC_OK,
+    wrapper_g1_norm, wrapper_g1_read_bin, wrapper_g1_sub, wrapper_g1_sub_assign, wrapper_g1_t,
+    wrapper_g1_write_bin, RLC_OK,
 };
 
 use pairing::group::{
@@ -490,13 +490,9 @@ impl Group for G1Projective {
     type Scalar = Scalar;
 
     fn random(mut rng: impl RngCore) -> Self {
-        let mut g1 = new_wrapper();
         let mut buf = [0u8; 64];
         rng.fill_bytes(&mut buf);
-        unsafe {
-            wrapper_g1_rand(&mut g1, buf.as_ptr(), buf.len());
-        }
-        Self(g1)
+        Self::hash_to_curve(buf, b"randrandrandrandrandrandrandrand")
     }
 
     #[inline]
