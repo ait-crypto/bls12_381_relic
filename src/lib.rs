@@ -52,9 +52,9 @@
 //!
 //! ## Notation
 //!
-//! The [pairing] uses additive notation for all groups, this crate follows the
-//! same convention. This is especially noticeable in the names of some
-//! functions. Instead of talking about pairing products, the same idea is
+//! The [pairing] crate uses additive notation for all groups, thus this crate
+//! follows the same convention. This is especially noticeable in the names of
+//! some functions. Instead of talking about pairing products, the same idea is
 //! referred to as pairing sums or sums of pairings.
 //!
 //! [relic]: https://github.com/relic-toolkit/relic
