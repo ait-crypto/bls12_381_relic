@@ -74,7 +74,7 @@ pub use pairing::group;
 pub use pairing::group::ff;
 pub use subtle;
 
-mod affine;
+pub mod affine;
 pub mod engine;
 pub mod g1;
 pub mod g2;
