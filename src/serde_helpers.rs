@@ -1,6 +1,5 @@
 use core::marker::PhantomData;
 
-use generic_array::{ArrayLength, GenericArray};
 use pairing::group::GroupEncoding;
 use serde::{
     de::{self, Visitor},
@@ -9,10 +8,9 @@ use serde::{
 
 struct BytesVisitor<T>(PhantomData<T>);
 
-impl<'de, T, N> Visitor<'de> for BytesVisitor<T>
+impl<'de, T> Visitor<'de> for BytesVisitor<T>
 where
-    N: ArrayLength,
-    T: GroupEncoding<Repr = GenericArray<u8, N>>,
+    T: for<'a> TryFrom<&'a [u8]>,
 {
     type Value = T;
 
@@ -24,18 +22,7 @@ where
     where
         E: de::Error,
     {
-        let bytes = v
-            .try_into()
-            .map_err(|_| E::invalid_length(v.len(), &self))?;
-        let value = T::from_bytes(bytes);
-        if value.is_some().unwrap_u8() == 1 {
-            Ok(value.unwrap())
-        } else {
-            Err(E::invalid_value(
-                de::Unexpected::Bytes(bytes.as_ref()),
-                &self,
-            ))
-        }
+        T::try_from(v).map_err(|_| E::invalid_value(de::Unexpected::Bytes(v), &self))
     }
 }
 
@@ -48,11 +35,10 @@ where
     serializer.serialize_bytes(value.to_bytes().as_ref())
 }
 
-pub fn deserialize<'de, D, T, N>(deserializer: D) -> Result<T, D::Error>
+pub fn deserialize<'de, D, T>(deserializer: D) -> Result<T, D::Error>
 where
     D: Deserializer<'de>,
-    N: ArrayLength,
-    T: GroupEncoding<Repr = GenericArray<u8, N>>,
+    T: for<'a> TryFrom<&'a [u8]>,
 {
     deserializer.deserialize_bytes(BytesVisitor(PhantomData))
 }

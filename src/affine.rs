@@ -40,6 +40,19 @@ where
     }
 }
 
+impl<'a, G> TryFrom<&'a [u8]> for Affine<G>
+where
+    G: private::Sealed,
+    G: TryFrom<&'a [u8]>,
+    Affine<G>: From<G>,
+{
+    type Error = <G as TryFrom<&'a [u8]>>::Error;
+
+    fn try_from(value: &'a [u8]) -> Result<Self, Self::Error> {
+        G::try_from(value).map(Self::from)
+    }
+}
+
 impl<G, Gp> Add<Gp> for Affine<G>
 where
     G: private::Sealed,
@@ -174,27 +187,27 @@ where
 impl<G> serde::Serialize for Affine<G>
 where
     G: private::Sealed,
-    Self: GroupEncoding,
+    G: serde::Serialize,
 {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {
-        crate::serde_helpers::serialize(self, serializer)
+        self.0.serialize(serializer)
     }
 }
 
 #[cfg(feature = "serde")]
-impl<'de, G, N> serde::Deserialize<'de> for Affine<G>
+impl<'de, G> serde::Deserialize<'de> for Affine<G>
 where
     G: private::Sealed,
-    N: generic_array::ArrayLength,
-    Self: GroupEncoding<Repr = generic_array::GenericArray<u8, N>>,
+    G: serde::Deserialize<'de>,
+    Self: From<G>,
 {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
         D: serde::Deserializer<'de>,
     {
-        crate::serde_helpers::deserialize(deserializer)
+        G::deserialize(deserializer).map(|g| Self::from(g))
     }
 }
