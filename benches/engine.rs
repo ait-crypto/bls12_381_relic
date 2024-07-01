@@ -1,10 +1,7 @@
 use bls12_381_relic::{ff::Field, G1Projective, G2Projective, RelicEngine};
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use pairing::{
-    group::{
-        prime::{PrimeCurve, PrimeCurveAffine},
-        Group,
-    },
+    group::{prime::PrimeCurve, Curve, Group},
     Engine, MillerLoopResult, MultiMillerLoop,
 };
 
@@ -12,18 +9,18 @@ fn bench_engine<E>(c: &mut Criterion, name: &str)
 where
     E: Engine + MultiMillerLoop,
 {
-    let g = E::G1Affine::generator();
-    let h = E::G2Affine::generator();
+    let mut rng = rand::thread_rng();
+    let g = E::G1::random(&mut rng).to_affine();
+    let h = E::G2::random(&mut rng).to_affine();
     c.bench_function(&format!("{}: pairing (affine)", name), move |b| {
         b.iter(|| black_box(E::pairing(black_box(&g), black_box(&h))))
     });
 
-    let mut rng = rand::thread_rng();
     let terms: Vec<_> = (0..8)
         .map(|_| {
             (
-                E::G1Affine::from(E::G1::random(&mut rng)),
-                E::G2Prepared::from(E::G2::random(&mut rng).into()),
+                E::G1::random(&mut rng).to_affine(),
+                E::G2Prepared::from(E::G2::random(&mut rng).to_affine()),
             )
         })
         .collect();
@@ -37,8 +34,9 @@ where
 fn bench_pairings(c: &mut Criterion) {
     bench_engine::<RelicEngine>(c, "RelicEngine");
 
-    let g = <RelicEngine as Engine>::G1::generator();
-    let h = <RelicEngine as Engine>::G2::generator();
+    let mut rng = rand::thread_rng();
+    let g = <RelicEngine as Engine>::G1::random(&mut rng);
+    let h = <RelicEngine as Engine>::G2::random(&mut rng);
     c.bench_function("RelicEngine: pairing (projective)", move |b| {
         b.iter(|| {
             black_box(RelicEngine::projective_pairing(
