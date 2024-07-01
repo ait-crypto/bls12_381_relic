@@ -37,7 +37,7 @@ bincode = { version = "1", default-features = false }
 [features]
 alloc = []
 std = ["alloc", "dep:thiserror"]
-default = ["alloc", "system"]
+default = ["std", "system"]
 serde = ["dep:serde"]
 zeroize = ["dep:zeroize"]
 # from librelic-sys
