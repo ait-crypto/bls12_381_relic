@@ -3,7 +3,7 @@
 use bls12_381_relic::{
     ff::Field,
     group::{prime::PrimeCurveAffine, Curve, Group},
-    pairing_sum, G1Affine, G1Projective, G2Affine, G2Projective, Scalar,
+    pairing_sum, G1Affine, G1Projective, G2Affine, G2Projective, Gt, Scalar,
 };
 use signature::{Error, Signer, Verifier};
 
@@ -63,10 +63,7 @@ impl Verifier<Signature> for PublicKey {
         if pairing_sum([
             (base_point, self.0),
             (signature.0, G2Projective::generator()),
-        ])
-        .is_identity()
-        .unwrap_u8()
-            == 1
+        ]) == Gt::identity()
         {
             Ok(())
         } else {
@@ -81,9 +78,7 @@ impl Verifier<AffineSignature> for AffinePublicKey {
         // e(H(msg), pk) == e(sigma, h) <=> e(H(msg), pk) - e(sigma, h) == 0 <=> e(-H(msg), pk) + e(sigma, h) == 0
         let base_point = (-G1Projective::hash_to_curve(msg, HASH_SEPERATOR)).to_affine();
         if pairing_sum([(base_point, self.0), (signature.0, G2Affine::generator())])
-            .is_identity()
-            .unwrap_u8()
-            == 1
+            == Gt::identity()
         {
             Ok(())
         } else {
