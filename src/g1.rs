@@ -888,11 +888,11 @@ mod test {
         let v1 = G1Projective::random(&mut rng);
 
         let bytes = bincode::serialize(&v1).unwrap();
-        let v2: G1Projective = bincode::deserialize(&bytes).unwrap();
+        let v2 = bincode::deserialize(&bytes).unwrap();
         assert_eq!(v1, v2);
 
-        let a1 = G1Affine::from(v1);
-        let a2: G1Affine = bincode::deserialize(&bytes).unwrap();
+        let a1 = v1.to_affine();
+        let a2 = bincode::deserialize(&bytes).unwrap();
         assert_eq!(a1, a2);
 
         let abytes = bincode::serialize(&a1).unwrap();
