@@ -24,7 +24,17 @@ pub(crate) mod private {
 
 /// Affine representation of curve points
 ///
-/// This is a fake "affine" representation since relic does not support them explicitly.
+/// This is a fake "affine" representation since relic does not support them
+/// explicitly. The implementation ensures that the wrapped element is
+/// normalized.
+///
+/// ```
+/// use bls12_381_relic::G1Projective;
+/// use bls12_381_relic::group::Curve;
+///
+/// let g1 = G1Projective::hash_to_curve(b"a point", b"public parameters");
+/// let affine = g1.to_affine();
+/// ```
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Default)]
 #[repr(transparent)]
 pub struct Affine<G>(pub(crate) G)
