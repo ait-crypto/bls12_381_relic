@@ -636,11 +636,7 @@ impl From<G1Projective> for Affine<G1Projective> {
 
 impl From<&G1Projective> for Affine<G1Projective> {
     fn from(value: &G1Projective) -> Self {
-        let mut g1 = new_wrapper();
-        unsafe {
-            wrapper_g1_norm(&mut g1, &value.0);
-        }
-        Self(G1Projective(g1))
+        value.to_affine()
     }
 }
 
