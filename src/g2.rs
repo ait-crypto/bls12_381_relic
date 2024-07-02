@@ -53,16 +53,6 @@ fn new_wrapper() -> wrapper_g2_t {
 #[repr(transparent)]
 pub struct G2Projective(pub(crate) wrapper_g2_t);
 
-impl Default for G2Projective {
-    fn default() -> Self {
-        let mut value = new_wrapper();
-        unsafe {
-            wrapper_g2_neutral(&mut value);
-        }
-        Self(value)
-    }
-}
-
 impl G2Projective {
     /// Hash to a point on the curve.
     // FIXME: make compatible with bls12-381 crate
@@ -73,6 +63,16 @@ impl G2Projective {
             wrapper_g2_hash_to_curve(&mut g2, msg.as_ptr(), msg.len(), dst.as_ptr(), dst.len());
         }
         g2.into()
+    }
+}
+
+impl Default for G2Projective {
+    fn default() -> Self {
+        let mut value = new_wrapper();
+        unsafe {
+            wrapper_g2_neutral(&mut value);
+        }
+        Self(value)
     }
 }
 

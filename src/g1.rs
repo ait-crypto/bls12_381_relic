@@ -24,7 +24,6 @@ use librelic_sys::{
     wrapper_g1_norm, wrapper_g1_read_bin, wrapper_g1_sub, wrapper_g1_sub_assign, wrapper_g1_t,
     wrapper_g1_write_bin, RLC_OK,
 };
-
 use pairing::group::{
     prime::{PrimeCurve, PrimeGroup},
     Curve, Group, GroupEncoding, UncompressedEncoding,
@@ -813,6 +812,9 @@ mod test {
         assert_eq!(check, rv * s);
         assert_eq!(check, rv * rs);
         assert_eq!(check, v * rs);
+        assert_eq!(check, s * rv);
+        assert_eq!(check, rs * rv);
+        assert_eq!(check, rs * v);
 
         let a = G1Affine::from(v);
         let ra = &a;
