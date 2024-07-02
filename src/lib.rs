@@ -221,3 +221,5 @@ mod test {
         assert_eq!(check, pp);
     }
 }
+
+pub(crate) const RANDOM_DOMAIN_SEPERATOR: &[u8; 32] = b"randrandrandrandrandrandrandrand";

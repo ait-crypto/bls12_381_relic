@@ -28,10 +28,10 @@ use pairing::group::{
     prime::{PrimeCurve, PrimeGroup},
     Curve, Group, GroupEncoding, UncompressedEncoding,
 };
+use rand_core::RngCore;
 use subtle::{Choice, CtOption};
 
-use crate::{affine, Affine, Error, Scalar};
-use rand_core::RngCore;
+use crate::{affine, Affine, Error, Scalar, RANDOM_DOMAIN_SEPERATOR};
 
 type CompressedSize = U97;
 type UncompressedSize = U193;
@@ -491,7 +491,7 @@ impl Group for G2Projective {
     fn random(mut rng: impl RngCore) -> Self {
         let mut buf = [0u8; 64];
         rng.fill_bytes(&mut buf);
-        Self::hash_to_curve(buf, b"randrandrandrandrandrandrandrand")
+        Self::hash_to_curve(buf, RANDOM_DOMAIN_SEPERATOR)
     }
 
     #[inline]

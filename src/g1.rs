@@ -32,7 +32,7 @@ use pairing::group::{
 use rand_core::RngCore;
 use subtle::{Choice, CtOption};
 
-use crate::{affine, Affine, Error, Scalar};
+use crate::{affine, Affine, Error, Scalar, RANDOM_DOMAIN_SEPERATOR};
 
 type CompressedSize = U49;
 type UncompressedSize = U97;
@@ -492,7 +492,7 @@ impl Group for G1Projective {
     fn random(mut rng: impl RngCore) -> Self {
         let mut buf = [0u8; 64];
         rng.fill_bytes(&mut buf);
-        Self::hash_to_curve(buf, b"randrandrandrandrandrandrandrand")
+        Self::hash_to_curve(buf, RANDOM_DOMAIN_SEPERATOR)
     }
 
     #[inline]
