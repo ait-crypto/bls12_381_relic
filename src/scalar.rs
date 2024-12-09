@@ -532,7 +532,7 @@ impl<'de> serde::Deserialize<'de> for Scalar {
 
         struct BytesVisitor;
 
-        impl<'de> de::Visitor<'de> for BytesVisitor {
+        impl de::Visitor<'_> for BytesVisitor {
             type Value = Scalar;
 
             fn expecting(&self, formatter: &mut core::fmt::Formatter) -> alloc::fmt::Result {

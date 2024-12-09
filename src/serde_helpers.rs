@@ -8,7 +8,7 @@ use serde::{
 
 struct BytesVisitor<T>(PhantomData<T>);
 
-impl<'de, T> Visitor<'de> for BytesVisitor<T>
+impl<T> Visitor<'_> for BytesVisitor<T>
 where
     T: for<'a> TryFrom<&'a [u8]>,
 {
