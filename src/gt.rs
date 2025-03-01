@@ -7,19 +7,19 @@ use core::{
 };
 
 use generic_array::{
-    typenum::{Unsigned, U384, U576},
     GenericArray,
+    typenum::{U384, U576, Unsigned},
 };
 use librelic_sys::{
-    wrapper_gt_add, wrapper_gt_add_assign, wrapper_gt_double, wrapper_gt_generator,
+    RLC_OK, wrapper_gt_add, wrapper_gt_add_assign, wrapper_gt_double, wrapper_gt_generator,
     wrapper_gt_init, wrapper_gt_is_equal, wrapper_gt_is_neutral, wrapper_gt_is_valid,
     wrapper_gt_mul, wrapper_gt_mul_assign, wrapper_gt_neg, wrapper_gt_neutral, wrapper_gt_read_bin,
-    wrapper_gt_sub, wrapper_gt_sub_assign, wrapper_gt_t, wrapper_gt_write_bin, RLC_OK,
+    wrapper_gt_sub, wrapper_gt_sub_assign, wrapper_gt_t, wrapper_gt_write_bin,
 };
-use pairing::group::{prime::PrimeGroup, Group, GroupEncoding, UncompressedEncoding};
+use pairing::group::{Group, GroupEncoding, UncompressedEncoding, prime::PrimeGroup};
 use subtle::{Choice, CtOption};
 
-use crate::{pair, Error, G1Projective, G2Projective, Scalar};
+use crate::{Error, G1Projective, G2Projective, Scalar, pair};
 use rand_core::RngCore;
 
 type CompressedSize = U384;

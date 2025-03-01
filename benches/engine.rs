@@ -1,8 +1,8 @@
-use bls12_381_relic::{ff::Field, G1Projective, G2Projective, RelicEngine};
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use bls12_381_relic::{G1Projective, G2Projective, RelicEngine, ff::Field};
+use criterion::{Criterion, black_box, criterion_group, criterion_main};
 use pairing::{
-    group::{prime::PrimeCurve, Curve, Group},
     Engine, MillerLoopResult, MultiMillerLoop,
+    group::{Curve, Group, prime::PrimeCurve},
 };
 
 fn bench_engine<E>(c: &mut Criterion, name: &str)

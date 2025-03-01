@@ -9,8 +9,8 @@
 use core::ops::{Add, Mul, Neg, Sub};
 
 use pairing::group::{
-    prime::{PrimeCurve, PrimeCurveAffine},
     GroupEncoding,
+    prime::{PrimeCurve, PrimeCurveAffine},
 };
 use subtle::Choice;
 

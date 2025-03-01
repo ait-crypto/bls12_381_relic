@@ -21,7 +21,7 @@ use librelic_sys::wrapper_pc_map_sim;
 use pairing::group::Group;
 use pairing::{Engine, MillerLoopResult, MultiMillerLoop, PairingCurveAffine};
 
-use crate::{gt::new_wrapper, G1Affine, G1Projective, G2Affine, G2Projective, Gt, Scalar};
+use crate::{G1Affine, G1Projective, G2Affine, G2Projective, Gt, Scalar, gt::new_wrapper};
 
 /// Relic-based [Engine]
 ///

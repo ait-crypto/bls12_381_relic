@@ -1,9 +1,10 @@
 //! Test based on the BLS signature scheme
 
 use bls12_381_relic::{
+    G1Affine, G1Projective, G2Affine, G2Projective, Gt, Scalar,
     ff::Field,
-    group::{prime::PrimeCurveAffine, Curve, Group},
-    pairing_sum, G1Affine, G1Projective, G2Affine, G2Projective, Gt, Scalar,
+    group::{Curve, Group, prime::PrimeCurveAffine},
+    pairing_sum,
 };
 use signature::{Error, Signer, Verifier};
 

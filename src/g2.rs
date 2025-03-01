@@ -12,26 +12,26 @@ extern crate alloc;
 use alloc::vec::Vec;
 
 use generic_array::{
-    typenum::{Unsigned, U193, U97},
     GenericArray,
+    typenum::{U97, U193, Unsigned},
 };
 #[cfg(feature = "alloc")]
 use librelic_sys::wrapper_g2_simmul;
 use librelic_sys::{
-    wrapper_g2_add, wrapper_g2_add_assign, wrapper_g2_double, wrapper_g2_generator,
+    RLC_OK, wrapper_g2_add, wrapper_g2_add_assign, wrapper_g2_double, wrapper_g2_generator,
     wrapper_g2_hash_to_curve, wrapper_g2_init, wrapper_g2_is_equal, wrapper_g2_is_neutral,
     wrapper_g2_is_valid, wrapper_g2_mul, wrapper_g2_mul_assign, wrapper_g2_neg, wrapper_g2_neutral,
     wrapper_g2_norm, wrapper_g2_read_bin, wrapper_g2_sub, wrapper_g2_sub_assign, wrapper_g2_t,
-    wrapper_g2_write_bin, RLC_OK,
+    wrapper_g2_write_bin,
 };
 use pairing::group::{
-    prime::{PrimeCurve, PrimeGroup},
     Curve, Group, GroupEncoding, UncompressedEncoding,
+    prime::{PrimeCurve, PrimeGroup},
 };
 use rand_core::RngCore;
 use subtle::{Choice, CtOption};
 
-use crate::{affine, Affine, Error, Scalar, RANDOM_DOMAIN_SEPERATOR};
+use crate::{Affine, Error, RANDOM_DOMAIN_SEPERATOR, Scalar, affine};
 
 type CompressedSize = U97;
 type UncompressedSize = U193;

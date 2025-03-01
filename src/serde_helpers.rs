@@ -2,8 +2,8 @@ use core::marker::PhantomData;
 
 use pairing::group::GroupEncoding;
 use serde::{
-    de::{self, Visitor},
     Deserializer, Serializer,
+    de::{self, Visitor},
 };
 
 struct BytesVisitor<T>(PhantomData<T>);
