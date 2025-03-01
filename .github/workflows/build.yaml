@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         toolchain:
-          - "1.70"
+          - "1.85"
           - stable
     name: Test with ${{matrix.toolchain}} toolchain
     steps:
@@ -27,10 +27,6 @@ jobs:
         with:
           toolchain: ${{matrix.toolchain}}
       - uses: Swatinem/rust-cache@v2
-      - name: Install dependencies compatible with MSRV
-        run: |
-          cargo update -p clap --precise 4.4.18
-        if: ${{matrix.toolchain != 'stable'}}
       - name: Test with no default features
         run: cargo test --workspace --no-default-features --features vendored
       - name: Test with default features
