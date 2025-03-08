@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3 (2025-03-08)
+
+* Migrate to 2024 edition.
+
 ## 0.1.2 (2024-12-09)
 
 * Add `serde` support
