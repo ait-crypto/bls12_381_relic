@@ -611,10 +611,12 @@ mod test {
     #[test]
     fn serde_serialization() {
         let mut rng = rand::thread_rng();
+        let config = bincode::config::standard();
+
         let v1 = Gt::random(&mut rng);
 
-        let bytes = bincode::serialize(&v1).unwrap();
-        let v2: Gt = bincode::deserialize(&bytes).unwrap();
+        let bytes = bincode::serde::encode_to_vec(v1, config).unwrap();
+        let (v2, _) = bincode::serde::decode_from_slice(&bytes, config).unwrap();
         assert_eq!(v1, v2);
     }
 }

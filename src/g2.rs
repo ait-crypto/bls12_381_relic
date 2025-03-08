@@ -884,17 +884,19 @@ mod test {
     #[test]
     fn serde_serialization() {
         let mut rng = rand::thread_rng();
+        let config = bincode::config::standard();
+
         let v1 = G2Projective::random(&mut rng);
 
-        let bytes = bincode::serialize(&v1).unwrap();
-        let v2 = bincode::deserialize(&bytes).unwrap();
+        let bytes = bincode::serde::encode_to_vec(v1, config).unwrap();
+        let (v2, _) = bincode::serde::decode_from_slice(&bytes, config).unwrap();
         assert_eq!(v1, v2);
 
         let a1 = v1.to_affine();
-        let a2 = bincode::deserialize(&bytes).unwrap();
+        let (a2, _) = bincode::serde::decode_from_slice(&bytes, config).unwrap();
         assert_eq!(a1, a2);
 
-        let abytes = bincode::serialize(&a1).unwrap();
+        let abytes = bincode::serde::encode_to_vec(a1, config).unwrap();
         assert_eq!(bytes, abytes);
     }
 }
