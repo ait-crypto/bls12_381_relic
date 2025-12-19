@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.5 (2025-12-19)
+
+* Move benchmarks into separate crate
+* Add more tests
+* Migrate to `bincode` version `2` for tests
+
 ## 0.1.4 (2025-03-08)
 
 * Revert `bincode` to version `1.x` for tests
