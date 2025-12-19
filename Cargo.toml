@@ -27,11 +27,6 @@ serde = { version = "1", default-features = false, optional = true }
 [dev-dependencies]
 rand = "0.8"
 signature = { version = "2.0", default-features = false }
-criterion = { version = "0.8", default-features = false }
-bls12_381 = { version = "0.8", default-features = false, features = [
-  "pairings",
-  "alloc",
-] }
 bincode = { version = "2", default-features = false, features = [
   "serde",
   "std",
@@ -47,13 +42,8 @@ zeroize = ["dep:zeroize"]
 system = ["librelic-sys/system"]
 vendored = ["librelic-sys/vendored"]
 
-[[bench]]
-name = "engine"
-harness = false
-required-features = ["std"]
-
 [package.metadata.docs.rs]
 all-features = true
 
 [workspace]
-members = ["librelic-sys"]
+members = ["bls12_381_relic-benches", "librelic-sys"]

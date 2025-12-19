@@ -1,11 +1,14 @@
 use std::hint::black_box;
 
-use bls12_381_relic::{G1Projective, G2Projective, RelicEngine, ff::Field};
-use criterion::{Criterion, criterion_group, criterion_main};
-use pairing::{
-    Engine, MillerLoopResult, MultiMillerLoop,
-    group::{Curve, Group, prime::PrimeCurve},
+use bls12_381_relic::{
+    G1Projective, G2Projective, RelicEngine,
+    ff::Field,
+    pairing::{
+        Engine, MillerLoopResult, MultiMillerLoop,
+        group::{Curve, Group, prime::PrimeCurve},
+    },
 };
+use criterion::{Criterion, criterion_group, criterion_main};
 
 fn bench_engine<E>(c: &mut Criterion, name: &str)
 where
