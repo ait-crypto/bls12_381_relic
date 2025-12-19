@@ -1,6 +1,6 @@
 use std::{fmt::Debug, iter::Sum};
 
-use bls12_381_relic::{ff::Field, pairing_sum, G1Projective, G2Projective, Gt, Scalar};
+use bls12_381_relic::{G1Projective, G2Projective, Gt, Scalar, ff::Field, pairing_sum};
 use pairing::group::Group;
 
 trait Signer<Signature, Message> {
