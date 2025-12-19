@@ -6,7 +6,7 @@ authors = ["Sebastian Ramacher <sebastian.ramacher@ait.ac.at>"]
 license = "Apache-2.0 OR MIT"
 repository = "https://github.com/ait-crypto/bls12_381_relic/"
 edition = "2024"
-keywords = ["pairings", "BLS12-381", "relic", "pairing-friendly-elliptic-curve"]
+keywords = ["pairings", "BLS12-381", "relic"]
 categories = ["cryptography", "api-bindings", "no-std"]
 rust-version = "1.85"
 
