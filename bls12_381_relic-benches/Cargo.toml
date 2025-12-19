@@ -2,8 +2,10 @@
 name = "bls12_381_relic-benches"
 version = "0.1.0"
 publish = false
+authors = ["Sebastian Ramacher <sebastian.ramacher@ait.ac.at>"]
+license = "Apache-2.0 OR MIT"
 edition = "2024"
-rust-version = "1.85"
+rust-version = "1.86"
 
 [dependencies]
 bls12_381_relic = { path = "../", features = ["std"] }
