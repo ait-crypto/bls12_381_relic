@@ -68,7 +68,6 @@ fn main() {
     println!("cargo:rerun-if-changed=build.rs");
 
     let mut build = cc::Build::new();
-    build.static_flag(true);
     build.flag_if_supported("-std=gnu11");
     build.flag_if_supported("-fstack-protector-strong");
     build.flag_if_supported("-Werror=incompatible-pointer-types");
