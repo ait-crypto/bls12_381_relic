@@ -250,9 +250,9 @@ void wrapper_g1_generator(wrapper_g1_t* g1) {
   }
 }
 
-void wrapper_g1_hash_to_curve(wrapper_g1_t* g1, const uint8_t* msg, size_t len, const uint8_t* dst, size_t dst_len) {
+void wrapper_g1_hash_to_curve(wrapper_g1_t* g1, const uint8_t* msg, size_t len) {
   RLC_TRY {
-    ep_map_dst(*g1, msg, len, dst, dst_len);
+    ep_map(*g1, msg, len);
   }
   RLC_CATCH_ANY {
     assert(false);
@@ -405,9 +405,9 @@ void wrapper_g2_generator(wrapper_g2_t* g2) {
   }
 }
 
-void wrapper_g2_hash_to_curve(wrapper_g2_t* g2, const uint8_t* msg, size_t len, const uint8_t* dst, size_t dst_len) {
+void wrapper_g2_hash_to_curve(wrapper_g2_t* g2, const uint8_t* msg, size_t len) {
   RLC_TRY {
-    ep2_map_dst(*g2, msg, len, dst, dst_len);
+    ep2_map(*g2, msg, len);
   }
   RLC_CATCH_ANY {
     assert(false);

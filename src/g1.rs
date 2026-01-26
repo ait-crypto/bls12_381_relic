@@ -29,6 +29,7 @@ use pairing::group::{
     prime::{PrimeCurve, PrimeGroup},
 };
 use rand_core::RngCore;
+use sha2::{Digest, Sha512};
 use subtle::{Choice, CtOption};
 
 use crate::{Affine, Error, RANDOM_DOMAIN_SEPERATOR, Scalar, affine};
@@ -57,10 +58,14 @@ impl G1Projective {
     /// Hash to a point on the curve.
     // TODO: make compatible with bls12-381 crate
     pub fn hash_to_curve(msg: impl AsRef<[u8]>, dst: &[u8]) -> Self {
+        let mut hasher = Sha512::new();
+        hasher.update(dst);
+        hasher.update(msg.as_ref());
+        let msg = hasher.finalize();
+
         let mut g1 = new_wrapper();
-        let msg = msg.as_ref();
         unsafe {
-            wrapper_g1_hash_to_curve(&mut g1, msg.as_ptr(), msg.len(), dst.as_ptr(), dst.len());
+            wrapper_g1_hash_to_curve(&mut g1, msg.as_ptr(), msg.len());
         }
         g1.into()
     }
