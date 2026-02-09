@@ -26,7 +26,7 @@ serde = { version = "1", default-features = false, optional = true }
 sha2 = { version = "0.10", default-features = false, features = ["asm"] }
 
 [dev-dependencies]
-rand = "0.8"
+rand = "0.10"
 signature = { version = "2.0", default-features = false }
 bincode = { version = "2", default-features = false, features = [
   "serde",
