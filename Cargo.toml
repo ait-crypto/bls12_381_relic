@@ -28,10 +28,7 @@ sha2 = { version = "0.10", default-features = false, features = ["asm"] }
 [dev-dependencies]
 rand = "0.8"
 signature = { version = "2.0", default-features = false }
-bincode = { version = "2", default-features = false, features = [
-  "serde",
-  "std",
-] }
+serde_cbor = "0.11"
 
 [features]
 alloc = []
