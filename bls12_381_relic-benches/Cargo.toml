@@ -16,7 +16,7 @@ bls12_381 = { version = "0.8", default-features = false, features = [
   "alloc",
 ] }
 criterion = { version = "0.8", default-features = false }
-rand = "0.8"
+rand = "0.10"
 
 [lib]
 test = false
