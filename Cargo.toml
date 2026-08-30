@@ -23,7 +23,7 @@ subtle = { version = "2", default-features = false, features = [
 thiserror = { version = "2", default-features = false, optional = true }
 zeroize = { version = "1", default-features = false, optional = true }
 serde = { version = "1", default-features = false, optional = true }
-sha2 = { version = "0.10", default-features = false, features = ["asm"] }
+sha2 = { version = "0.11", default-features = false, features = ["asm"] }
 
 [dev-dependencies]
 rand = "0.8"
